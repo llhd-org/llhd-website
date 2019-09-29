@@ -5,6 +5,7 @@ editor_hdl.setOptions({
     showPrintMargin: false,
     theme: "ace/theme/tomorrow",
     mode: "ace/mode/verilog",
+    wrap: true,
 });
 
 editor_llhd.setOptions({
@@ -12,7 +13,14 @@ editor_llhd.setOptions({
     theme: "ace/theme/tomorrow",
     mode: "ace/mode/text",
     readOnly: true,
+    wrap: true,
 });
+
+compileSpinner = $("div.compile-spin");
+if (window.location.protocol && window.location.hostname && window.location.port)
+    apiUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port;
+else
+    apiUrl = "http://127.0.0.1:5000"
 
 // Keep track of the code across page reloads.
 if (!localStorage.code) {
@@ -38,4 +46,34 @@ endmodule";
 editor_hdl.session.setValue(localStorage.code);
 editor_hdl.session.on("change", function () {
     localStorage.code = editor_hdl.session.getValue();
+    queueCompile();
 });
+
+// Compilation queuing
+var compileTimeout
+
+function queueCompile() {
+    if (compileTimeout)
+        clearTimeout(compileTimeout);
+    compileTimeout = setTimeout(compile, 500);
+}
+
+function compile() {
+    if (compileTimeout)
+        clearTimeout(compileTimeout);
+    compileSpinner.addClass("show");
+    $.post(apiUrl + "/compile", JSON.stringify({
+        code: editor_hdl.session.getValue(),
+    }))
+    .done(function(resp) {
+        editor_llhd.session.setValue(resp.output);
+    })
+    .fail(function(resp) {
+        editor_llhd.session.setValue("Error: " + resp.responseJSON.error);
+    })
+    .always(function() {
+        compileSpinner.removeClass("show");
+    });
+}
+
+compile();

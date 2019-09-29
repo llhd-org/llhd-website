@@ -17,6 +17,22 @@ header {
 .code-editor {
     font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
     font-size: 14px;
-    height: 20rem;
+    height: 25rem;
     box-shadow: 0 0.1rem 1rem 0 rgba(0,0,0,0.2);
+}
+
+.compile-spin {
+    position: absolute;
+    width: 5rem;
+    height: 5rem;
+    margin-left: -2.5rem;
+    margin-top: -2.5rem;
+    top: 50%;
+    left: 50%;
+    z-index: 1000;
+    visibility: hidden;
+}
+
+.show {
+  visibility: visible;
 }

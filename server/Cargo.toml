@@ -1,0 +1,24 @@
+[package]
+authors = ["Fabian Schuiki <fabian@schuiki.ch>"]
+name = "server"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+iron = "0.6.1"
+mount = "0.4.0"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+bodyparser = "0.8.0"
+dotenv = "0.14.1"
+log = "0.4.0"
+env_logger = "0.7"
+snafu = "0.5.0"
+tempdir = "0.3.7"
+regex = "1"
+lazy_static = "1.4"
+strip-ansi-escapes = "0.1"
+
+[dependencies.playground-middleware]
+git = "https://github.com/integer32llc/playground-middleware"
