@@ -17,8 +17,8 @@ editor_llhd.setOptions({
 });
 
 compileSpinner = $("div.compile-spin");
-if (window.location.protocol && window.location.hostname && window.location.port)
-    apiUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port;
+if (window.location.protocol)
+    apiUrl = window.location.origin;
 else
     apiUrl = "http://127.0.0.1:5000"
 
