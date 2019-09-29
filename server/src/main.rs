@@ -185,7 +185,6 @@ struct Sandbox {
     #[allow(dead_code)]
     scratch: TempDir,
     input_file: PathBuf,
-    output_dir: PathBuf,
 }
 
 impl Sandbox {
@@ -193,12 +192,10 @@ impl Sandbox {
     pub fn new() -> Result<Self> {
         let scratch = TempDir::new("llhd-io").context(UnableToCreateTempDir)?;
         let input_file = scratch.path().join("input.sv");
-        let output_dir = scratch.path().join("output");
 
         Ok(Sandbox {
             scratch,
             input_file,
-            output_dir,
         })
     }
 
@@ -245,36 +242,31 @@ impl Sandbox {
 
     /// Assemble the command to be executed to compile HDL to LLHD.
     fn compile_command(&self, module_name: &str) -> Command {
-        let use_docker = false;
-        let cmd = if use_docker {
+        let use_docker = true;
+        let mut cmd = if use_docker {
             let mut cmd = self.docker_command();
-            cmd.arg("compiler"); // container name
+            cmd.arg("llhd-sandbox"); // container name
+            cmd.args(&["moore", "input.sv"]);
             cmd
         } else {
             let mut cmd = Command::new("moore");
             cmd.arg(&self.input_file);
-            cmd.args(&["-e", module_name]);
             cmd
         };
+        cmd.args(&["-e", module_name]);
         log::debug!("Compilation command is {:?}", cmd);
         cmd
     }
 
     /// Assemble a docker command that deals with the given input and output.
     fn docker_command(&self) -> Command {
-        let mut mount_input_file = self.input_file.as_os_str().to_os_string();
-        mount_input_file.push(":");
-        mount_input_file.push("/playground/");
-
-        let mut mount_output_dir = self.output_dir.as_os_str().to_os_string();
-        mount_output_dir.push(":");
-        mount_output_dir.push("/playground-result");
+        let mut mount_dir = self.input_file.as_os_str().to_os_string();
+        mount_dir.push(":");
+        mount_dir.push("/playground/");
+        mount_dir.push(self.input_file.file_name().unwrap());
 
         let mut cmd = basic_secure_docker_command();
-        cmd.arg("--volume")
-            .arg(&mount_input_file)
-            .arg("--volume")
-            .arg(&mount_output_dir);
+        cmd.arg("--volume").arg(&mount_dir);
         cmd
     }
 }
@@ -282,16 +274,16 @@ impl Sandbox {
 /// Assemble the basic command to launch a secure docker container.
 fn basic_secure_docker_command() -> Command {
     let mut cmd = Command::new("docker");
-    cmd.arg("run")
-        .arg("--rm")
-        .arg("--cap-drop=ALL")
-        .arg("--cap-add=DAC_OVERRIDE")
-        .arg("--security-opt=no-new-privileges")
-        .args(&["--workdir", "/playground"])
-        .args(&["--net", "none"])
-        .args(&["--memory", "256m"])
-        .args(&["--memory-swap", "320m"])
-        .args(&["--env", "PLAYGROUND_TIMEOUT=10"])
-        .args(&["--pids-limit", "512"]);
+    cmd.arg("run");
+    cmd.arg("--rm");
+    cmd.arg("--cap-drop=ALL");
+    cmd.arg("--cap-add=DAC_OVERRIDE");
+    cmd.arg("--security-opt=no-new-privileges");
+    cmd.args(&["--workdir", "/playground"]);
+    cmd.args(&["--net", "none"]);
+    cmd.args(&["--memory", "256m"]);
+    cmd.args(&["--memory-swap", "320m"]);
+    cmd.args(&["--env", "PLAYGROUND_TIMEOUT=10"]);
+    cmd.args(&["--pids-limit", "512"]);
     cmd
 }
