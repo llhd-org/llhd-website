@@ -36,29 +36,28 @@ The web server lives in the `server/` directory. During development, you can pla
 
 When the user types some HDL code into the interactive editor on the website, the moore compiler is run in the docker container defined in `backend/` to produce the corresponding LLHD output. The server looks for a `llhd-sandbox` container. Build as follows:
 
-```
-docker build -t llhd-sandbox backend
-```
+    docker build -t llhd-sandbox backend
 
 ## Deployment on Ubuntu
 
 Run the following as root to set up an Ubuntu server instance (e.g. Amazon Lightsail/EC2).
 
-### Dependencies
+### As root
 ```
 apt-get update
 apt-get upgrade -y
-apt-get install git awscli nginx
+apt-get install build-essential curl git awscli nginx
 
-apt-get install docker-ce
-
-service docker restart
-usermod -a -G docker ubuntu
-
-# Set aside disk space
+# Allocate swap space
 fallocate -l 1G /swap.fs
 chmod 0600 /swap.fs
 mkswap /swap.fs
+
+# Set aside disk space
+fallocate -l 512M /playground.fs
+device=$(losetup -f --show /playground.fs)
+mkfs -t ext3 -m 1 -v $device
+mkdir /mnt/playground
 
 # Configure mount points
 cat >>/etc/fstab <<EOF
@@ -66,5 +65,41 @@ cat >>/etc/fstab <<EOF
 /playground.fs /mnt/playground  ext3   loop     0   0
 EOF
 
+# Install docker
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+apt update
+apt-get install docker-ce
+service docker restart
+usermod -a -G docker ubuntu
+
+# Install Rust
+curl -sSf https://sh.rustup.rs | sh -s -- -y
+
 # Reboot instance at this point.
+reboot
+```
+
+### As regular user
+```
+# Clone the repository
+cd /home/ubuntu
+git clone https://github.com/llhd-org/www.llhd.io.git
+
+# Build the server
+cd /home/ubuntu/www.llhd.io/server
+cargo build --release
+
+# Build the docker container
+cd /home/ubuntu/www.llhd.io
+docker build -t llhd-sandbox backend
+
+```
+
+### As root
+```
+# Install the systemd service
+cp /home/ubuntu/www.llhd.io/server/llhd-io.service /etc/systemd/system/llhd-io.service
+service llhd-io start
+systemctl enable llhd-io.service
 ```
