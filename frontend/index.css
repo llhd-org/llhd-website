@@ -1,0 +1,22 @@
+body {
+    font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Big Shoulders Display', cursive;
+}
+
+header {
+    margin-top: 2rem;
+}
+
+.row-livehdl {
+    margin-top: 2rem;
+}
+
+.code-editor {
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-size: 14px;
+    height: 20rem;
+    box-shadow: 0 0.1rem 1rem 0 rgba(0,0,0,0.2);
+}

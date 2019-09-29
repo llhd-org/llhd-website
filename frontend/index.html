@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Big+Shoulders+Display:700|Open+Sans&display=swap" rel="stylesheet">
+    <link href="index.css" rel="stylesheet">
+    <title>Low Level Hardware Description</title>
+  </head>
+  <body class="container">
+    <header class="row">
+      <div class="col-12">
+        <h1 class="display-3">LLHD</h1>
+      </div>
+      <div class="col-md-8">
+        <p class="lead">The <mark>Low Level Hardware Description</mark> language is an intermediate representation for digital circuit descriptions, together with an accompanying simulator and SystemVerilog/VHDL compiler.</p>
+        <p>LLHD separates input languages from EDA tools such as simulators, synthesizers, and placers/routers. This makes writing such tools easier, allows for more rich and complex HDLs, and does not require vendors to agree upon the implementation of a language.</p>
+      </div>
+      <div class="col-md">
+        <p><a class="btn btn-primary btn-lg btn-block" href="https://github.com/fabianschuiki/moore" target="blank">Install LLHD</a></p>
+        <p>
+          Project components:
+          <ul>
+            <li><a href="https://github.com/fabianschuiki/llhd" target="blank">LLHD Language</a></li>
+            <li><a href="https://github.com/fabianschuiki/llhd-sim" target="blank">Reference Simulator</a></li>
+            <li><a href="https://github.com/fabianschuiki/moore" target="blank">Moore HDL Compiler</a></li>
+          </ul>
+        </p>
+      </div>
+    </header>
+    <!-- <hr> -->
+    <div class="row row-livehdl">
+      <div class="col-sm-12">
+        <h2>Try it yourself</h2>
+        <p>Edit the SystemVerilog on the left and see how it translates to LLHD on the right.</p>
+      </div>
+      <div class="col-lg">
+        <div id="editor-hdl" class="code-editor"></div>
+      </div>
+      <div class="col-lg">
+        <div id="editor-llhd" class="code-editor"></div>
+      </div>
+    </div>
+    <hr class="my-4">
+    <footer>
+      <p class="small text-center">Copyright © 2019 by Fabian Schuiki</p>
+    </footer>
+
+    <script src="https://pagecdn.io/lib/ace/1.4.5/ace.js" integrity="sha256-5Xkhn3k/1rbXB+Q/DX/2RuAtaB4dRRyQvMs83prFjpM=" crossorigin="anonymous"></script>
+    <script src="index.js" ></script>
+  </body>
+</html>
