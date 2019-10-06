@@ -1,0 +1,15 @@
+{
+  "name": "www.llhd.io",
+  "version": "1.0.0",
+  "description": "This is the home of the [LLHD website](https://llhd.io/).",
+  "scripts": {
+    "render": "node render.js"
+  },
+  "entry": "render.js",
+  "private": true,
+  "author": "Fabian Schuiki <fabian@schuiki.ch>",
+  "dependencies": {
+    "markdown-it": "^10.0.0",
+    "markdown-it-toc-and-anchor": "^4.2.0"
+  }
+}

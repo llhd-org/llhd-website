@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css?family=Big+Shoulders+Display:700|Open+Sans&display=swap" rel="stylesheet">
+<link href="spec.css" rel="stylesheet">
+<title>LLHD Language Reference</title>
+</head>
+<body>
+	<div class="container">
+		<div class="markdown-body">
+			<nav class="sidebar">
+				
+			</nav>
+			<h1 id="llhd-language-reference"><a class="markdown-anchor" href="#llhd-language-reference">§</a>LLHD Language Reference</h1>
+<p><ul>
+<li><a href="#type-system">Type System</a>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#n-x-t-the-array-type"><code>[N x T]</code> — The Array Type</a></li>
+<li><a href="#t0t1-the-struct-type"><code>{T0,T1,...}</code> — The Struct Type</a></li>
+</ul>
+</li>
+<li><a href="#instructions">Instructions</a>
+<ul>
+<li><a href="#overview-2">Overview</a></li>
+<li><a href="#const-constant-value"><code>const</code> - Constant Value</a></li>
+<li><a href="#alias-rename-value"><code>alias</code> - Rename Value</a></li>
+<li><a href="#-construct-array"><code>[...]</code> - Construct Array</a></li>
+<li><a href="#-construct-struct"><code>{...}</code> - Construct Struct</a></li>
+<li><a href="#not-neg-unary-arithmetic"><code>not</code>, <code>neg</code> - Unary Arithmetic</a></li>
+<li><a href="#add-sub-and-or-xor-smul-sdiv-smod-srem-umul-udiv-umod-urem-binary-arithmetic"><code>add</code>, <code>sub</code>, <code>and</code>, <code>or</code>, <code>xor</code>, <code>smul</code>, <code>sdiv</code>, <code>smod</code>, <code>srem</code>, <code>umul</code>, <code>udiv</code>, <code>umod</code>, <code>urem</code> - Binary Arithmetic</a></li>
+<li><a href="#eq-neq-equality-comparison-of-two-values"><code>eq</code>, <code>neq</code> - Equality Comparison of two Values</a></li>
+<li><a href="#slt-sgt-sle-sge-ult-ugt-ule-uge-relational-comparison-of-two-values"><code>slt</code>, <code>sgt</code>, <code>sle</code>, <code>sge</code>, <code>ult</code>, <code>ugt</code>, <code>ule</code>, <code>uge</code> - Relational Comparison of two Values</a></li>
+<li><a href="#shl-shr-shift-a-value"><code>shl</code>, <code>shr</code> - Shift a Value</a></li>
+<li><a href="#mux-pick-a-value-from-an-array"><code>mux</code> - Pick a Value from an Array</a></li>
+<li><a href="#reg-register-to-store-a-value"><code>reg</code> - Register to Store a Value</a></li>
+<li><a href="#br-branch"><code>br</code> - Branch</a></li>
+<li><a href="#insert-insert-value"><code>insert</code> — Insert Value</a></li>
+<li><a href="#extract-extract-value"><code>extract</code> — Extract Value</a></li>
+<li><a href="#shlshr-shift-a-value"><code>shl</code>,<code>shr</code> — Shift a Value</a></li>
+</ul>
+</li>
+<li><a href="#call-fpe">Call (<em>fpe</em>)</a></li>
+<li><a href="#instance-e">Instance (<em>e</em>)</a></li>
+<li><a href="#unary-integer-arithmetic-fpe">Unary Integer Arithmetic (<em>fpe</em>)</a></li>
+<li><a href="#binary-integer-arithmetic-fpe">Binary Integer Arithmetic (<em>fpe</em>)</a></li>
+<li><a href="#integer-comparison-fpe">Integer Comparison (<em>fpe</em>)</a></li>
+</ul>
+</p>
+<hr>
+<p>This document specifies the low-level hardware description language. It outlines the architecture, structure, and instruction set, and provides usage examples.</p>
+<h2 id="type-system"><a class="markdown-anchor" href="#type-system">§</a>Type System</h2>
+<h3 id="overview"><a class="markdown-anchor" href="#overview">§</a>Overview</h3>
+<p>The following table shows the types available in LLHD. These are outlined in more detail in the following sections.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>iN</code></td>
+<td>Integer of <code>N</code> bits, signed or unsigned.</td>
+</tr>
+<tr>
+<td><code>nN</code></td>
+<td>Enumeration of <code>N</code> distinct values.</td>
+</tr>
+<tr>
+<td><code>T*</code></td>
+<td>Pointer to value of type <code>T</code>.</td>
+</tr>
+<tr>
+<td><code>T$</code></td>
+<td>Signal carrying a value of type <code>T</code>.</td>
+</tr>
+<tr>
+<td><code>[N x T]</code></td>
+<td>Array containing <code>N</code> elements of type <code>T</code>.</td>
+</tr>
+<tr>
+<td><code>{T0,T1,...}</code></td>
+<td>Struct containing fields of types <code>T0</code>, <code>T1</code>, etc.</td>
+</tr>
+<tr>
+<td><code>T (T0,T1,...)</code></td>
+<td>Function returning value <code>T</code>, taking arguments of type <code>T0</code>, <code>T1</code>, etc.</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td>The type of an instruction that yields no result.</td>
+</tr>
+<tr>
+<td><code>label</code></td>
+<td>A basic block.</td>
+</tr>
+<tr>
+<td><code>time</code></td>
+<td>A simulation time value.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="n-x-t-the-array-type"><a class="markdown-anchor" href="#n-x-t-the-array-type">§</a><code>[N x T]</code> — The Array Type</h3>
+<p>An array type may be constructed as follows:</p>
+<pre><code>[N x T]
+</code></pre>
+<p>Where <code>N</code> is the number of elements in the array and <code>T</code> the type of each element. All elements have the same type.</p>
+<p>For example:</p>
+<pre><code>[16 x i8]
+[9001 x {i32, i1}]
+</code></pre>
+<h4 id="constant"><a class="markdown-anchor" href="#constant">§</a>Constant</h4>
+<p>An array constant value may be constructed as follows:</p>
+<pre><code>(1) [T V0, V1, ...]
+(2) [V0, V1, ...]
+(3) [N x T V]
+(4) [N x V]
+</code></pre>
+<p>Variants 1 and 2 explicitly list the value of each element in the array. The length of the array is inferred from the number of elements provided. 3 and 4 create an array of length <code>N</code> and assigns each element the same value. Variants 1 and 3 explicitly list the value type, thus allowing for values with implicit types. Varaints 2 and 4 require the values to have explicit type. This allows for compact notation of integer arrays.</p>
+<p>For example:</p>
+<pre><code>[i32 42, 9001, 65]  ; type [3 x i32]
+[{i32 16, i64 9001}, {i32 42, i64 65}]  ; type [2 x {i32, i64}]
+[16 x i32 42]  ; type [16 x i32]
+</code></pre>
+<h3 id="t0t1-the-struct-type"><a class="markdown-anchor" href="#t0t1-the-struct-type">§</a><code>{T0,T1,...}</code> — The Struct Type</h3>
+<p>A struct type may be constructed as follows:</p>
+<pre><code>{T0, T1, ...}
+</code></pre>
+<p>Where each type corresponds to a field in the struct. The fields are anonymous and thus don't carry names.</p>
+<p>For example:</p>
+<pre><code>{i32, void, {i64, i1}}
+</code></pre>
+<h4 id="constant-2"><a class="markdown-anchor" href="#constant-2">§</a>Constant</h4>
+<p>A struct constant value may be constructed as follows:</p>
+<pre><code>{V0, V1, ...}
+</code></pre>
+<p>For example:</p>
+<pre><code>{i32 4, i32 9001, {i64 42}}  ; type {i32, i32, {i64}}
+</code></pre>
+<p>Note that each field must have an explicit type. This means that integer constants must be prefixed with their type: <code>i32 4</code> instead of just <code>4</code>.</p>
+<h2 id="instructions"><a class="markdown-anchor" href="#instructions">§</a>Instructions</h2>
+<h3 id="overview-2"><a class="markdown-anchor" href="#overview-2">§</a>Overview</h3>
+<p>The following table shows the full instruction set of LLHD. Instructions have limitations as to whether they can appear in an entity, function, or process.</p>
+<table>
+<thead>
+<tr>
+<th>Instruction</th>
+<th>Allowed In</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>const</code></td>
+<td>EFP</td>
+<td>Construct a constant value</td>
+</tr>
+<tr>
+<td><code>alias</code></td>
+<td>EFP</td>
+<td>Assign a new name to a value</td>
+</tr>
+<tr>
+<td><code>[...]</code></td>
+<td>EFP</td>
+<td>Construct an array</td>
+</tr>
+<tr>
+<td><code>{...}</code></td>
+<td>EFP</td>
+<td>Construct a struct</td>
+</tr>
+<tr>
+<td><code>not</code></td>
+<td>EFP</td>
+<td>Bitwise NOT</td>
+</tr>
+<tr>
+<td><code>neg</code></td>
+<td>EFP</td>
+<td>Two's complement</td>
+</tr>
+<tr>
+<td><code>add</code></td>
+<td>EFP</td>
+<td>Addition</td>
+</tr>
+<tr>
+<td><code>sub</code></td>
+<td>EFP</td>
+<td>Subtraction</td>
+</tr>
+<tr>
+<td><code>and</code></td>
+<td>EFP</td>
+<td>Bitwise AND</td>
+</tr>
+<tr>
+<td><code>or</code></td>
+<td>EFP</td>
+<td>Bitwise OR</td>
+</tr>
+<tr>
+<td><code>xor</code></td>
+<td>EFP</td>
+<td>Bitwise XOR</td>
+</tr>
+<tr>
+<td><code>smul</code></td>
+<td>EFP</td>
+<td>Signed multiplication</td>
+</tr>
+<tr>
+<td><code>umul</code></td>
+<td>EFP</td>
+<td>Unsigned multiplication</td>
+</tr>
+<tr>
+<td><code>sdiv</code></td>
+<td>EFP</td>
+<td>Signed division</td>
+</tr>
+<tr>
+<td><code>udiv</code></td>
+<td>EFP</td>
+<td>Unsigned division</td>
+</tr>
+<tr>
+<td><code>smod</code></td>
+<td>EFP</td>
+<td>Signed modulo</td>
+</tr>
+<tr>
+<td><code>umod</code></td>
+<td>EFP</td>
+<td>Unsigned modulo</td>
+</tr>
+<tr>
+<td><code>srem</code></td>
+<td>EFP</td>
+<td>Signed remainder</td>
+</tr>
+<tr>
+<td><code>urem</code></td>
+<td>EFP</td>
+<td>Unsigned remainder</td>
+</tr>
+<tr>
+<td><code>eq</code></td>
+<td>EFP</td>
+<td>Check for equality</td>
+</tr>
+<tr>
+<td><code>neq</code></td>
+<td>EFP</td>
+<td>Check for inequality</td>
+</tr>
+<tr>
+<td><code>slt</code></td>
+<td>EFP</td>
+<td>Check for signed less-than ordering</td>
+</tr>
+<tr>
+<td><code>ult</code></td>
+<td>EFP</td>
+<td>Check for unsigned less-than ordering</td>
+</tr>
+<tr>
+<td><code>sgt</code></td>
+<td>EFP</td>
+<td>Check for signed greater-than ordering</td>
+</tr>
+<tr>
+<td><code>ugt</code></td>
+<td>EFP</td>
+<td>Check for unsigned greater-than ordering</td>
+</tr>
+<tr>
+<td><code>sle</code></td>
+<td>EFP</td>
+<td>Check for signed less-than-or-equal ordering</td>
+</tr>
+<tr>
+<td><code>ule</code></td>
+<td>EFP</td>
+<td>Check for unsigned less-than-or-equal ordering</td>
+</tr>
+<tr>
+<td><code>sge</code></td>
+<td>EFP</td>
+<td>Check for signed greater-than-or-equal ordering</td>
+</tr>
+<tr>
+<td><code>uge</code></td>
+<td>EFP</td>
+<td>Check for unsigned greater-than-or-equal ordering</td>
+</tr>
+<tr>
+<td><code>shl</code></td>
+<td>EFP</td>
+<td>Shift a value to the left</td>
+</tr>
+<tr>
+<td><code>shr</code></td>
+<td>EFP</td>
+<td>Shift a value to the right</td>
+</tr>
+<tr>
+<td><code>mux</code></td>
+<td>EFP</td>
+<td>Choose from an array of values</td>
+</tr>
+<tr>
+<td><code>reg</code></td>
+<td>E</td>
+<td>A register to provide storage for a value</td>
+</tr>
+<tr>
+<td><code>br</code></td>
+<td>FP</td>
+<td>Branch to a different block</td>
+</tr>
+<tr>
+<td><code>insert</code></td>
+<td>EFP</td>
+<td>Change the value of one or more fields, elements, or bits.</td>
+</tr>
+<tr>
+<td><code>extract</code></td>
+<td>EFP</td>
+<td>Retrieve the value of one or more fields, elements, or bits.</td>
+</tr>
+<tr>
+<td><code>shl</code>, <code>shr</code></td>
+<td>EFP</td>
+<td>Shift a value to the left or right.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="const-constant-value"><a class="markdown-anchor" href="#const-constant-value">§</a><code>const</code> - Constant Value</h3>
+<p>The <code>const</code> instruction is used to introduce a constant value into the IR. The first version constructs a constant integer value, the second a constant integer signal, and the third a constant time value.</p>
+<pre><code>%a = const iN &lt;int&gt;
+%a = const iN$ &lt;int&gt;
+%a = const time &lt;time&gt;
+</code></pre>
+<ul>
+<li><code>int</code> is an integer literal</li>
+<li><code>time</code> is a time literal</li>
+</ul>
+<h4 id="examples"><a class="markdown-anchor" href="#examples">§</a>Examples</h4>
+<p>A constant 32 bit integer with value 42 may be constructed as follows:</p>
+<pre><code>%0 = const i32 42
+%1 = const i32$ 42
+; type(%0) = i32
+; type(%1) = i32$
+</code></pre>
+<p>A constant time with value 1s+3d+7e may be constructed as follows:</p>
+<pre><code>%0 = const time 1s 3d 7e
+</code></pre>
+<h3 id="alias-rename-value"><a class="markdown-anchor" href="#alias-rename-value">§</a><code>alias</code> - Rename Value</h3>
+<p>The <code>alias</code> instruction is used to assign a new name to a value.</p>
+<pre><code>%a = alias &lt;ty&gt; &lt;value&gt;
+</code></pre>
+<ul>
+<li><code>ty</code> is the type of the resulting value <code>%a</code> and must match the type of <code>value</code>.</li>
+<li><code>value</code> is the value to be aliased.</li>
+</ul>
+<h4 id="example"><a class="markdown-anchor" href="#example">§</a>Example</h4>
+<p>A value <code>%0</code> may be aliased under name <code>foo</code> as follows:</p>
+<pre><code>%0 = const i32 42
+%foo = alias i32 %0
+</code></pre>
+<h3 id="-construct-array"><a class="markdown-anchor" href="#-construct-array">§</a><code>[...]</code> - Construct Array</h3>
+<p>Array values may be constructed in two ways. The first constructs a uniform array where each element has the same value. The second constructs an array with different values for each element. Every element in an array must have the same type.</p>
+<pre><code>%a = [&lt;N&gt; x &lt;ty&gt; &lt;value&gt;]
+%a = [&lt;ty&gt; &lt;value1&gt;, ..., &lt;ty&gt; &lt;valueN&gt;]
+</code></pre>
+<ul>
+<li><code>N</code> is the number of elements in the array.</li>
+<li><code>ty</code> is the type of each element. All elements must have the same type.</li>
+<li><code>value</code> is the value each element will have.</li>
+<li><code>value1</code> to <code>valueN</code> are the values for each individual element.</li>
+</ul>
+<h4 id="example-2"><a class="markdown-anchor" href="#example-2">§</a>Example</h4>
+<p>An array of 9001 zeros of 8 bits each may be constructed as follows:</p>
+<pre><code>%0 = const i8 0
+%1 = [9001 x i8 %0]
+; type(%1) = [9001 x i8]
+</code></pre>
+<p>An array with three different 16 bit values may be constructed as follows:</p>
+<pre><code>%0 = const i16 9001
+%1 = const i16 42
+%2 = const i16 1337
+%3 = [i16 %0, i16 %1, i16 %2]
+; type(%3) = [3 x i16]
+</code></pre>
+<h3 id="-construct-struct"><a class="markdown-anchor" href="#-construct-struct">§</a><code>{...}</code> - Construct Struct</h3>
+<p>Struct values may be constructed in the following way:</p>
+<pre><code>%a = {&lt;ty1&gt; &lt;value1&gt;, ..., &lt;tyN&gt; &lt;valueN&gt;}
+</code></pre>
+<ul>
+<li><code>ty1</code> to <code>tyN</code> is the type of each field in the struct.</li>
+<li><code>value1</code> to <code>valueN</code> is the value of each field in the struct.</li>
+</ul>
+<h4 id="example-3"><a class="markdown-anchor" href="#example-3">§</a>Example</h4>
+<p>A struct with three fields of different types may be constructed as follows:</p>
+<pre><code>%0 = const i1 0
+%1 = const i42 9001
+%2 = const time 1337s
+%3 = {i1 %0, i42 %1, time %2}
+; type(%3) = {i1, i42, time}
+</code></pre>
+<h3 id="not-neg-unary-arithmetic"><a class="markdown-anchor" href="#not-neg-unary-arithmetic">§</a><code>not</code>, <code>neg</code> - Unary Arithmetic</h3>
+<p>The <code>not</code> operation flips each bit of a value. The <code>neg</code> operation computes the two's complement of a value, effectively flipping its sign.</p>
+<pre><code>%a = not &lt;ty&gt; &lt;value&gt;
+%a = neg &lt;ty&gt; &lt;value&gt;
+</code></pre>
+<ul>
+<li><code>ty</code> must be <code>iN</code> or <code>iN$</code>.</li>
+<li><code>value</code> is the input argument. Must be of type <code>ty</code>.</li>
+</ul>
+<h4 id="example-4"><a class="markdown-anchor" href="#example-4">§</a>Example</h4>
+<p>The bits of an integer value may be flipped as follows:</p>
+<pre><code>%0 = const i8 0x0F
+%1 = not i8 %0
+; %1 = 0xF0
+</code></pre>
+<p>The sign of an integer may be flipped as follows:</p>
+<pre><code>%0 = const i8 42
+%1 = neg i8 %0
+; %1 = -42
+</code></pre>
+<h3 id="add-sub-and-or-xor-smul-sdiv-smod-srem-umul-udiv-umod-urem-binary-arithmetic"><a class="markdown-anchor" href="#add-sub-and-or-xor-smul-sdiv-smod-srem-umul-udiv-umod-urem-binary-arithmetic">§</a><code>add</code>, <code>sub</code>, <code>and</code>, <code>or</code>, <code>xor</code>, <code>smul</code>, <code>sdiv</code>, <code>smod</code>, <code>srem</code>, <code>umul</code>, <code>udiv</code>, <code>umod</code>, <code>urem</code> - Binary Arithmetic</h3>
+<p>The <code>add</code> and <code>sub</code> operation add or subtract two values.</p>
+<pre><code>%a = add  &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = sub  &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+</code></pre>
+<p>The <code>and</code>, <code>or</code>, and <code>xor</code> operation compute the bitwise AND, OR, and XOR of two values.</p>
+<pre><code>%a = and  &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = or   &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = xor  &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+</code></pre>
+<p>The multiplicative operations are available in a signed (<code>s...</code>) and unsigned (<code>u...</code>) flavor. Choosing one or the other alters how the input operands are interpreted. The <code>mul</code> operation multiplies two values. The <code>div</code> operation divides the left-hand side by the right-hand side value. The <code>mod</code> and <code>rem</code> operation compute the modulo and remainder of the division.</p>
+<pre><code>%a = smul &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = umul &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = sdiv &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = udiv &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = smod &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = umod &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = srem &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = urem &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+</code></pre>
+<ul>
+<li><code>ty</code> must be <code>iN</code> or <code>iN$</code>.</li>
+<li><code>lhs</code> and <code>rhs</code> are the left- and right-hand side arguments. Must be of type <code>ty</code>.</li>
+</ul>
+<h3 id="eq-neq-equality-comparison-of-two-values"><a class="markdown-anchor" href="#eq-neq-equality-comparison-of-two-values">§</a><code>eq</code>, <code>neq</code> - Equality Comparison of two Values</h3>
+<p>The <code>eq</code> and <code>neq</code> operation checks for equality or inequality of two values.</p>
+<pre><code>%a = eq  &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = neq &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+</code></pre>
+<ul>
+<li><code>ty</code> can be any type.</li>
+<li><code>lhs</code> and <code>rhs</code> are the left- and right-hand side arguments of the comparison. Must be of type <code>ty</code>.</li>
+<li>The result of the operation is of type <code>i1</code>.</li>
+</ul>
+<h3 id="slt-sgt-sle-sge-ult-ugt-ule-uge-relational-comparison-of-two-values"><a class="markdown-anchor" href="#slt-sgt-sle-sge-ult-ugt-ule-uge-relational-comparison-of-two-values">§</a><code>slt</code>, <code>sgt</code>, <code>sle</code>, <code>sge</code>, <code>ult</code>, <code>ugt</code>, <code>ule</code>, <code>uge</code> - Relational Comparison of two Values</h3>
+<p>The relational operators are available in a signed (<code>s...</code>) and unsigned (<code>u...</code>) flavor. Choosing one or the other alters how the input operands are interpreted. The <code>lt</code>, <code>gt</code>, <code>le</code>, and <code>ge</code> operation checks for less-than, greater-than, less-than-or-equal, and greater-than-or-equal ordering.</p>
+<pre><code>%a = slt &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = ult &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = sgt &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = ugt &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = sle &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = ule &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = sge &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+%a = uge &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
+</code></pre>
+<ul>
+<li><code>ty</code> must be <code>iN</code> or <code>iN$</code>.</li>
+<li><code>lhs</code> and <code>rhs</code> are the left- and right-hand side arguments of the comparison. Must be of type <code>ty</code>.</li>
+<li>The result of the operation is of type <code>i1</code>.</li>
+</ul>
+<h3 id="shl-shr-shift-a-value"><a class="markdown-anchor" href="#shl-shr-shift-a-value">§</a><code>shl</code>, <code>shr</code> - Shift a Value</h3>
+<p>The <code>shl</code> and <code>shr</code> operation shifts a value to the left or right by a given amount.</p>
+<pre><code>%a = shl &lt;ty1&gt; &lt;base&gt;, &lt;ty2&gt; &lt;hidden&gt;, &lt;ty3&gt; &lt;amount&gt;
+%a = shr &lt;ty1&gt; &lt;base&gt;, &lt;ty2&gt; &lt;hidden&gt;, &lt;ty3&gt; &lt;amount&gt;
+</code></pre>
+<ul>
+<li><code>ty1</code> is the type of the base value and the type of the shift result. Can be <code>iN</code> or any array, or a signal/pointer of thereof.</li>
+<li><code>base</code> is the base value that is produced if the shift amount is 0.</li>
+<li><code>ty2</code> is the type of the hidden value. Must be of the same as <code>ty1</code> but may have a different number of bits or elements.</li>
+<li><code>hidden</code> is the hidden value that is uncovered by non-zero shift amounts.</li>
+<li><code>ty3</code> is the type of the shift amount. Must be <code>iN</code>.</li>
+<li><code>amount</code> determines by how many positions the value is to be shifted. Must be in the range 0 to N, where N is the width of the <code>hidden</code> value.</li>
+<li>The result of the shift operation has the same type as the base value.</li>
+</ul>
+<h4 id="example-5"><a class="markdown-anchor" href="#example-5">§</a>Example</h4>
+<p>The operation can be visualized as concatenating the base and the hidden value, then selecting a slice of the resulting bits starting at the offset determined by the <code>amount</code> value.</p>
+<pre><code>%0 = const i8 0b10011001
+%1 = const i12 0b010110100101
+%2 = const i3 6
+
+%3 = shl i8 %0, i12 %1, i3 %2
+; %3 = 0b01010110
+
+; |%0----||%1--------|
+; 10011001010110100101
+; &gt;&gt;&gt;&gt;&gt;&gt;|%3----|
+
+%4 = shr i8 %0, i12 %1, i3 %2
+; %4 = 0b10010110
+
+; |%1--------||%0----|
+; 01011010010110011001
+;       |%4----|&lt;&lt;&lt;&lt;&lt;&lt;
+</code></pre>
+<h3 id="mux-pick-a-value-from-an-array"><a class="markdown-anchor" href="#mux-pick-a-value-from-an-array">§</a><code>mux</code> - Pick a Value from an Array</h3>
+<p>The <code>mux</code> operation chooses one of an array of values based on a given selector value.</p>
+<pre><code>%a = mux &lt;ty&gt; &lt;array&gt;, &lt;ty_sel&gt; &lt;sel&gt;
+</code></pre>
+<ul>
+<li><code>ty</code> is the type of the <code>array</code>.</li>
+<li><code>array</code> is a list of values from which the multiplexer selects.</li>
+<li><code>ty_sel</code> is the type of the selector. Must be <code>iN</code> or <code>iN$</code>.</li>
+<li><code>sel</code> is the selector and must be in the range 0 to M-1, where M is the number of elements in the array.</li>
+<li>The result of the operation is the element type of the array <code>ty</code>.</li>
+</ul>
+<h3 id="reg-register-to-store-a-value"><a class="markdown-anchor" href="#reg-register-to-store-a-value">§</a><code>reg</code> - Register to Store a Value</h3>
+<p>The <code>reg</code> instruction provides a storage element for a value. It may only be used inside an entity.</p>
+<pre><code>%a = reg &lt;ty&gt; &lt;init&gt;, &lt;value&gt; &lt;mode&gt; &lt;trigger_ty&gt; &lt;trigger&gt;, ...
+</code></pre>
+<ul>
+<li><code>ty</code> is the type of the stored value. Must be a signal.</li>
+<li><code>init</code> is the initial value. Must be of type <code>ty</code>.</li>
+<li>Each comma-separated triple following the initial value specifies a storage trigger:
+<ul>
+<li><code>value</code> is the value to be stored in the register. Must be of type <code>ty</code>.</li>
+<li><code>mode</code> is the trigger mode and may be one of the following:
+<ul>
+<li><code>low</code> stores <code>value</code> while the trigger is low. Models active-low resets and low-transparent latches.</li>
+<li><code>high</code> stores <code>value</code> while the trigger is high. Models active-high resets and high-transparent latches.</li>
+<li><code>rise</code> stores <code>value</code> upon the rising edge of the trigger. Models rising-edge flip-flops.</li>
+<li><code>fall</code> stores <code>value</code> upon the falling edge of the trigger. Models falling-edge flip-flops.</li>
+<li><code>both</code> stores <code>value</code> upon either a rising or a falling edge of the trigger. Models dual-edge flip-flops.</li>
+</ul>
+</li>
+<li><code>trigger_ty</code> is the trigger type. Must be <code>i1</code>.</li>
+<li><code>trigger</code> is the trigger value. Must be of type <code>trigger_ty</code>.</li>
+<li>In case multiple triggers apply the left-most takes precedence.</li>
+</ul>
+</li>
+</ul>
+<h4 id="examples-2"><a class="markdown-anchor" href="#examples-2">§</a>Examples</h4>
+<p>A rising, falling, and dual-edge triggered flip-flop:</p>
+<pre><code>%Q = reg i8$ %init, %D rise i1$ %CLK
+%Q = reg i8$ %init, %D fall i1$ %CLK
+%Q = reg i8$ %init, %D both i1$ %CLK
+</code></pre>
+<p>A rising-edge triggered flip-flop with active-low reset:</p>
+<pre><code>%Q = reg i8$ %init, %init low i1$ %RSTB, %D rise i1$ %CLK
+</code></pre>
+<p>A transparent-low and transparent-high latch:</p>
+<pre><code>%Q = reg i8$ %init, %D low i1$ %CLK
+%Q = reg i8$ %init, %D high i1$ %CLK
+</code></pre>
+<p>An SR latch:</p>
+<pre><code>%0 = const i1$ 0
+%1 = const i1$ 1
+%Q = reg i1$ %0, %0 high i1$ %R, %1 high i1$ %S
+</code></pre>
+<h3 id="br-branch"><a class="markdown-anchor" href="#br-branch">§</a><code>br</code> - Branch</h3>
+<pre><code>br &lt;block&gt;
+br &lt;value&gt;, &lt;block_if_0&gt;, &lt;block_if_1&gt;
+</code></pre>
+<h3 id="insert-insert-value"><a class="markdown-anchor" href="#insert-insert-value">§</a><code>insert</code> — Insert Value</h3>
+<p>The <code>insert</code> instruction may be used to change the value of fields of structs, elements of arrays, or bits of integers. It comes in two variants: <code>insert element</code> operates on single elements, while <code>insert slice</code> operates on a slice of consecutive elements.</p>
+<pre><code>%r = insert element &lt;ty&gt; &lt;target&gt;, &lt;index&gt;, &lt;value&gt;
+%r = insert slice &lt;ty&gt; &lt;target&gt;, &lt;start&gt;, &lt;length&gt;, &lt;value&gt;
+</code></pre>
+<ul>
+<li><code>ty</code> is the type of the target struct, array, or integer. A type.</li>
+<li><code>target</code> is the struct, array, or integer to be modified. A value.</li>
+<li><code>index</code> is the index of the field, element, or bit to be modified. An unsigned integer.</li>
+<li><code>start</code> is the index of the first element or bit to be modified. An unsigned integer.</li>
+<li><code>length</code> is the number of elements or bits after <code>start</code> to be modified. An unsigned integer.</li>
+<li><code>value</code> is the value to be assigned o the selected field, elements, or bits. Its type must correspond to a single field, element, or bit in case of the <code>insert element</code> variant, or an array or integer of length <code>length</code> in case of the <code>insert slice</code> variant. A value.</li>
+</ul>
+<p>Note that <code>index</code>, <code>start</code>, and <code>length</code> must be integer constants. You cannot pass dynamically calculated integers for these fields.</p>
+<h4 id="result"><a class="markdown-anchor" href="#result">§</a>Result</h4>
+<p>The <code>insert</code> instruction yields the modified <code>target</code> as a result, which is of type <code>ty</code>.</p>
+<h4 id="example-6"><a class="markdown-anchor" href="#example-6">§</a>Example</h4>
+<p>A field of a struct may be modified as follows:</p>
+<pre><code>; %0 = {i32 0, i16 0}
+%1 = insert element {i32, i16} %0, 0, 42
+; %1 = {i32 42, i16 0}
+</code></pre>
+<p>An element of an array may be modified as follows:</p>
+<pre><code>; %0 = [i32 0, 0, 0, 0]
+%1 = insert element [4 x i32] %0, 2, 42
+; %1 = [i32 0, 0, 42, 0]
+</code></pre>
+<p>A bit of an integer may be modified as follows:</p>
+<pre><code>; %0 = i32 3
+%1 = insert element i32 %0, 3, 1
+; %1 = i32 11
+</code></pre>
+<p>A slice of array elements may be modified as follows:</p>
+<pre><code>; %0 = [i32 0, 0, 0, 0]
+%1 = insert slice [4 x i32] %0, 1, 2, [i32 42, 9001]
+; %1 = [i32 0, 42, 9001, 0]
+</code></pre>
+<p>A slice of integer bits may be modified as follows:</p>
+<pre><code>; %0 = i32 8
+%1 = insert slice i32 %0, 0, 2, 3
+; %1 = i32 11
+</code></pre>
+<h3 id="extract-extract-value"><a class="markdown-anchor" href="#extract-extract-value">§</a><code>extract</code> — Extract Value</h3>
+<p>The <code>extract</code> instruction may be used to obtain the value of fields of structs, elements of arrays, or bits of integers. It comes in two variants: <code>extract element</code> operates on single elements, while <code>extract slice</code> operates on a slice of consecutive elements.</p>
+<pre><code>%r = extract element &lt;ty&gt; &lt;target&gt;, &lt;index&gt;
+%r = extract slice &lt;ty&gt; &lt;target&gt;, &lt;start&gt;, &lt;length&gt;
+</code></pre>
+<ul>
+<li><code>ty</code> is the type of the target struct, array, or integer. A type.</li>
+<li><code>target</code> is the struct, array, or integer to be accessed. A struct may only be used in <code>extract element</code>. A value.</li>
+<li><code>index</code> is the index of the field, element, or bit to be accessed. An unsigned integer.</li>
+<li><code>start</code> is the index of the first element or bit to be accessed. An unsigned integer.</li>
+<li><code>length</code> is the number of elements or bits after <code>start</code> to be accessed. An unsigned integer.</li>
+</ul>
+<p>Note that <code>index</code>, <code>start</code>, and <code>length</code> must be integer constants. You cannot pass dynamically calculated integers for these fields.</p>
+<h4 id="types"><a class="markdown-anchor" href="#types">§</a>Types</h4>
+<p>The basic operation of <code>extract</code> is defined on integer, struct, and array types. If the target is a signal or pointer type around a struct or array, the instruction returns a signal or pointer of the selected field or elements.</p>
+<h4 id="result-2"><a class="markdown-anchor" href="#result-2">§</a>Result</h4>
+<p>The <code>extract element</code> instruction yields the value of the selected field, element, or bit. If the target is a struct the returned type is the <code>index</code> field of the struct. If it is an array the returned type is the array's element type. If it is an integer the returned type is the single bit variant of the integer (e.g. <code>i1</code>).</p>
+<p>The <code>extract slice</code> instruction yields the values of the selected elements or bits. If the target is an array the returned type is the same array type but with length <code>length</code>. If the target is an integer the returned type is the same integer type but with width <code>length</code>.</p>
+<h4 id="example-7"><a class="markdown-anchor" href="#example-7">§</a>Example</h4>
+<p>A field of a struct may be accessed as follows:</p>
+<pre><code>; %0 = {i32 42, i16 9001}
+%1 = extract element {i32, i16} %0, 0
+; %1 = i32 42
+</code></pre>
+<p>An element of an array may be accessed as follows:</p>
+<pre><code>; %0 = [i32 0, 0, 42, 0]
+%1 = extract element [4 x i32] %0, 2
+; %1 = i32 42
+</code></pre>
+<p>A bit of an integer may be accessed as follows:</p>
+<pre><code>; %0 = i32 11
+%1 = extract element i32 %0, 3
+; %1 = i1 1
+</code></pre>
+<p>A slice of array elements may be accessed as follows:</p>
+<pre><code>; %0 = [i32 0, 42, 9001, 0]
+%1 = extract slice [4 x i32] %0, 1, 2
+; %1 = [i32 42, 9001]
+</code></pre>
+<p>A slice of integer bits may be accessed as follows:</p>
+<pre><code>; %0 = i32 11
+%1 = extract slice i32 %0, 0, 2
+; %1 = i2 3
+</code></pre>
+<h5 id="signals"><a class="markdown-anchor" href="#signals">§</a>Signals</h5>
+<p>The <code>extract</code> instruction may be used to dissect integer, struct, and array signals into smaller subsignals that alias the selected bits, field, or elements and may then be driven individually.</p>
+<p>A subsignal of an integer signal may be obtained as follows:</p>
+<pre><code>; %0 = sig i32
+%1 = extract element i32$ %0, 3
+%2 = extract slice i32$ %0, 0, 2
+; typeof(%1) = i1$
+; typeof(%2) = i2$
+</code></pre>
+<p>A subsignal of a struct signal may be obtained as follows:</p>
+<pre><code>; %0 = sig {i32, i16}
+%1 = extract element {i32, i16}$ %0, 0
+; typeof(%1) = i32$
+</code></pre>
+<p>A subsignal of an array signal may be obtained as follows:</p>
+<pre><code>; %0 = sig [4 x i32]
+%1 = extract element [4 x i32]$ %0, 2
+%2 = extract slice [4 x i32]$ %0, 1, 2
+; typeof(%1) = i32$
+; typeof(%2) = [2 x i32]$
+</code></pre>
+<h5 id="pointers"><a class="markdown-anchor" href="#pointers">§</a>Pointers</h5>
+<p>The <code>extract</code> instruction may be used to obtain a pointer to a struct field, or a pointer to one or more array fields. These pointers alias the selected field or elements and may be used in load and store operations.</p>
+<p>A pointer to specific bits of an integer may be obtained as follows:</p>
+<pre><code>; %0 = var i32
+%1 = extract element i32* %0, 3
+%2 = extract slice i32* %0, 0, 2
+; typeof(%1) = i1*
+; typeof(%2) = i2*
+</code></pre>
+<p>A pointer to the field of a struct may be obtained as follows:</p>
+<pre><code>; %0 = var {i32, i16}
+%1 = extract element {i32, i16}* %0, 0
+; typeof(%1) = i32*
+</code></pre>
+<p>A pointer to specific elements of an array may be obtained as follows:</p>
+<pre><code>; %0 = var [4 x i32]
+%1 = extract element [4 x i32]* %0, 2
+%2 = extract slice [4 x i32]$ %0, 1, 2
+; typeof(%1) = i32*
+; typeof(%2) = [2 x i32]*
+</code></pre>
+<h3 id="shlshr-shift-a-value"><a class="markdown-anchor" href="#shlshr-shift-a-value">§</a><code>shl</code>,<code>shr</code> — Shift a Value</h3>
+<p>The <code>shl</code> and <code>shr</code> instructions may be used to shift the bits of a number or the elements of an array to the left or right.</p>
+<pre><code>%r = shl &lt;ty&gt; &lt;target&gt;, &lt;lsb&gt;, &lt;amount&gt;
+%r = shr &lt;ty&gt; &lt;target&gt;, &lt;msb&gt;, &lt;amount&gt;
+</code></pre>
+<ul>
+<li><code>ty</code> is the type of the target number or array.</li>
+<li><code>target</code> is the number or array to be modified.</li>
+<li><code>lsb</code> and <code>msb</code> determines the value of the bit or element that is revealed due to the shift.</li>
+<li><code>amount</code> is the number of bits or elements the value is shifted. Must be an integer and is interpreted as unsigned.</li>
+</ul>
+<p>The returned value is of type <code>ty</code>. The shift <code>amount</code> may exceed the bit width or number of elements of <code>target</code>, in which case the result has all bits or elements set to <code>lsb</code> or <code>msb</code>.</p>
+<h4 id="types-2"><a class="markdown-anchor" href="#types-2">§</a>Types</h4>
+<p>The type of the value for inserted bits or elements, <code>lsb</code> and <code>msb</code>, must be the single-bit equivalent of <code>ty</code> if it is a number, or the element type of <code>ty</code> if it is an array.</p>
+<h4 id="examples-3"><a class="markdown-anchor" href="#examples-3">§</a>Examples</h4>
+<p>A logical left or right shift of an integer may be performed as follows:</p>
+<pre><code>; %0 = i32 42
+%1 = shl i32 %0, i1 0, i32 3
+%2 = shr i32 %0, i1 0, i32 3
+; %1 = i32 5
+; %2 = i32 336
+</code></pre>
+<p>An arithmetic right shift of an integer which maintains sign extension may be performed as follows:</p>
+<pre><code>; %0 = i32 -42
+%sign = extract element i32 %0, 31
+%1 = shr i32 %0, %sign, i32 3
+; %1 = i32 -6
+</code></pre>
+<p>The elements of an array may be shifted to the left or right as follows:</p>
+<pre><code>; %0 = [i32 1, 2, 3, 4]
+%1 = shl [4 x i32] %0, i32 9, i32 3
+%2 = shr [4 x i32] %0, i32 9, i32 3
+; %1 = [i32 4, 9, 9, 9]
+; %2 = [i32 9, 9, 9, 1]
+</code></pre>
+<h2 id="call-fpe"><a class="markdown-anchor" href="#call-fpe">§</a>Call (<em>fpe</em>)</h2>
+<pre><code>call &lt;target&gt; (&lt;args,...&gt;)
+</code></pre>
+<p>The call instruction transfers control to a function declared in the module and yields the function's return value. If used in an entity, the function is reevaluated whenever its input arguments change.</p>
+<h2 id="instance-e"><a class="markdown-anchor" href="#instance-e">§</a>Instance (<em>e</em>)</h2>
+<pre><code>inst &lt;target&gt; (&lt;inputs,...&gt;) (&lt;outputs,...&gt;)
+</code></pre>
+<p>The instance instruction instantiates a process or entity declared in the module and connects its inputs and outputs.</p>
+<h2 id="unary-integer-arithmetic-fpe"><a class="markdown-anchor" href="#unary-integer-arithmetic-fpe">§</a>Unary Integer Arithmetic (<em>fpe</em>)</h2>
+<pre><code>not &lt;ty&gt; &lt;arg&gt;
+</code></pre>
+<p>These instructions perform unary arithmetic operations on a single integer value <code>arg</code>. The operand and the result of the instruction are of type <code>ty</code>, which must be an integer type <code>iN</code>. The operations performed are as follows:</p>
+<ul>
+<li><code>not</code>: Bitwise negation of the value. Every bit that is 1 becomes a 0, and vice versa.</li>
+</ul>
+<h2 id="binary-integer-arithmetic-fpe"><a class="markdown-anchor" href="#binary-integer-arithmetic-fpe">§</a>Binary Integer Arithmetic (<em>fpe</em>)</h2>
+<pre><code>add &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+sub &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+mul &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+div &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+mod &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+rem &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+and &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+or  &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+xor &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+</code></pre>
+<p>These instructions perform binary arithmetic operations on two integer values <code>lhs</code> and <code>rhs</code>. Both operands and the result of the instruction are of type <code>ty</code>, which must be an integer type <code>iN</code>. The operations performed are as follows:</p>
+<ul>
+<li><code>add</code>: Addition</li>
+<li><code>sub</code>: Subtraction</li>
+<li><code>mul</code>: Multiplication</li>
+<li><code>div</code>: Division rounding towards negative infinity.</li>
+<li><code>mod</code>: Modulo. The result of the operation is <code>lhs + x * rhs</code> for the smallest <code>x</code> that makes the result positive.</li>
+<li><code>rem</code>: Remainder.</li>
+<li><code>and</code>: Bitwise logic AND. Each resulting bit is 1 iff both of the argument bits are 1.</li>
+<li><code>or</code>: Bitwise logic OR. Each resulting bit is 1 iff either of the argument bits are 1.</li>
+<li><code>xor</code>: Bitwise logic XOR. Each resulting bit is 1 iff the argument bits differ.</li>
+</ul>
+<h2 id="integer-comparison-fpe"><a class="markdown-anchor" href="#integer-comparison-fpe">§</a>Integer Comparison (<em>fpe</em>)</h2>
+<pre><code>cmp eq  &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+cmp neq &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+cmp slt &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+cmp sgt &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+cmp sle &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+cmp sge &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+cmp ult &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+cmp ugt &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+cmp ule &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+cmp uge &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+</code></pre>
+<p>These isntructions compare two integer values and yield a <code>i1</code> result. The operands are of type <code>ty</code>, which must be an integer type <code>iN</code>. The operations performed are as follows:</p>
+<ul>
+<li><code>eq</code>: Equality</li>
+<li><code>neq</code>: Inequality</li>
+<li><code>slt</code>: <code>lhs &lt; rhs</code>, both arguments treated as signed values.</li>
+<li><code>sgt</code>: <code>lhs &gt; rhs</code>, both arguments treated as signed values.</li>
+<li><code>sle</code>: <code>lhs &lt;= rhs</code>, both arguments treated as signed values.</li>
+<li><code>sge</code>: <code>lhs &gt;= rhs</code>, both arguments treated as signed values.</li>
+<li><code>ult</code>: <code>lhs &lt; rhs</code>, both arguments treated as unsigned values.</li>
+<li><code>ugt</code>: <code>lhs &gt; rhs</code>, both arguments treated as unsigned values.</li>
+<li><code>ule</code>: <code>lhs &lt;= rhs</code>, both arguments treated as unsigned values.</li>
+<li><code>uge</code>: <code>lhs &gt;= rhs</code>, both arguments treated as unsigned values.</li>
+</ul>
+
+		</div>
+		<hr class="my-4">
+		<footer>
+			<p class="small text-center">
+			Copyright © 2019 by <a href="https://github.com/fabianschuiki" target="blank">Fabian Schuiki</a>
+			</p>
+		</footer>
+	</div>
+</body>
+</html>
