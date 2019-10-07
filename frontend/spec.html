@@ -15,7 +15,19 @@
 				
 			</nav>
 			<h1 id="llhd-language-reference"><a class="markdown-anchor" href="#llhd-language-reference">§</a>LLHD Language Reference</h1>
+<p>This document specifies the low-level hardware description language. It outlines the architecture, structure, and instruction set, and provides usage examples.</p>
 <p><ul>
+<li><a href="#modules">Modules</a></li>
+<li><a href="#names">Names</a></li>
+<li><a href="#units">Units</a>
+<ul>
+<li><a href="#functions">Functions</a></li>
+<li><a href="#processes">Processes</a></li>
+<li><a href="#entities">Entities</a></li>
+<li><a href="#external-units">External Units</a></li>
+<li><a href="#basic-blocks">Basic Blocks</a></li>
+</ul>
+</li>
 <li><a href="#type-system">Type System</a>
 <ul>
 <li><a href="#overview">Overview</a></li>
@@ -51,7 +63,162 @@
 </ul>
 </p>
 <hr>
-<p>This document specifies the low-level hardware description language. It outlines the architecture, structure, and instruction set, and provides usage examples.</p>
+<h2 id="modules"><a class="markdown-anchor" href="#modules">§</a>Modules</h2>
+<p>At the root of the LLHD hierarchy, a module represents an entire design. It is equivalent to one single LLHD assembly file on disk, or one in-memory design graph. Modules consist of functions, processes, entities, and external unit declarations as outlined in the following sections. Two or more modules can be combined using the linker, which substitutes external declarations (<code>declare ...</code>) with an actual unit definition. A module is called <em>self-contained</em> if it contains no external unit declarations.</p>
+<h2 id="names"><a class="markdown-anchor" href="#names">§</a>Names</h2>
+<p>Names in LLHD follow a scheme similar to LLVM. The language distinguishes between global names, local names, and anonymous names. Global names are visible outside of the module. Local names are visible only within the module, function, process, or entity they are defined in. Anonymous names are purely numeric local names whose numbering is not preserved across IR in-memory and on-disk representations.</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Regex</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@foo</code></td>
+<td><code>@[a-zA-Z0-9_\.\\]+</code></td>
+<td>Global name visible outside of the module, function, process, or entity.</td>
+</tr>
+<tr>
+<td><code>%foo</code></td>
+<td><code>%[a-zA-Z0-9_\.\\]+</code></td>
+<td>Local name visible only within module, function, process, or entity.</td>
+</tr>
+<tr>
+<td><code>%42</code></td>
+<td><code>%[0-9]+</code></td>
+<td>Anonymous local name.</td>
+</tr>
+</tbody>
+</table>
+<p>Names are UTF-8 encoded. Arbitrary code points beyond letters and numbers may be represented as sequences of <code>\xx</code> bytes, where <code>xx</code> is the lower- or uppercase hexadecimal representation of the byte. E.g. the local name <code>foo$bar</code> is encoded as <code>%foo\24bar</code>.</p>
+<h2 id="units"><a class="markdown-anchor" href="#units">§</a>Units</h2>
+<p>Designs in LLHD are represented by three different constructs (called &quot;units&quot;): functions, processes, and entities. These capture different concerns arising from the need to model silicon hardware, and is in contrast to IRs targeting machine code generation, which generally only consist of functions.</p>
+<p>The language differentiates between how instructions are executed in a unit:</p>
+<ul>
+<li><em>Control-flow</em> units consist of basic blocks, where execution follows a clear control-flow path. This is equivalent to what one would find LLVM's IR.</li>
+<li><em>Data-flow</em> units consist only of an unordered set of instructions which form a data-flow graph. Execution of instructions is implied by the propagation of value changes through the graph.</li>
+</ul>
+<p>Furthermore it differentiates how time passes during the execution of a unit:</p>
+<ul>
+<li><em>Immediate</em> units execute in zero time. They may not contain any instructions that suspend execution or manipulate signals. These units are ephemeral in the sense that their execution starts and terminates in between time steps. As such no immediate units coexist or persist across time steps.</li>
+<li><em>Timed</em> units coexist and persist during the entire execution of the IR. They represent reactions to changes in signals and may suspend execution or interact with signals (probe value, schedule state changes).</li>
+</ul>
+<p>The following table provides an overview of the three IR units, which are detailed in the following sections:</p>
+<table>
+<thead>
+<tr>
+<th>Unit</th>
+<th>Paradigm</th>
+<th>Timing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Function</strong></td>
+<td>control-flow</td>
+<td>immediate</td>
+</tr>
+<tr>
+<td><strong>Process</strong></td>
+<td>control-flow</td>
+<td>timed</td>
+</tr>
+<tr>
+<td><strong>Entity</strong></td>
+<td>data-flow</td>
+<td>timed</td>
+</tr>
+</tbody>
+</table>
+<h3 id="functions"><a class="markdown-anchor" href="#functions">§</a>Functions</h3>
+<p>Functions represent <em>control-flow</em> executing <em>immediately</em> and consist of a sequence of basic blocks and instructions:</p>
+<pre><code>func &lt;name&gt; (&lt;ty1&gt; &lt;arg1&gt;, ...) &lt;retty&gt; {
+    &lt;bb1&gt;
+    ...
+    &lt;bbN&gt;
+}
+</code></pre>
+<p>A function has a local or global name, input arguments, and a return type. The first basic block in a function is the entry block. Functions must contain at least one basic block. Terminator instructions may either branch to another basic block or must be the <code>ret</code> instruction. The argument to <code>ret</code> must be of the return type <code>&lt;retty&gt;</code>. Functions are called using the <code>call</code> instruction. Functions may not contain instructions that suspend execution (<code>wait</code> and <code>halt</code>), may not interact with signals (<code>prb</code>, <code>drv</code>, <code>sig</code>), and may not instantiate entities/processes (<code>inst</code>).</p>
+<h4 id="example"><a class="markdown-anchor" href="#example">§</a>Example</h4>
+<p>The following function computes the Fibonacci series for a 32 bit signed integer number N:</p>
+<pre><code>func @fib (i32 %N) i32 {
+%entry:
+    %one = const i32 1
+    %0 = sle i32 %N, %one
+    br %0, %recursive, %base
+%base:
+    ret i32 %one
+%recursive:
+    %two = const i32 2
+    %1 = sub i32 %N, %one
+    %2 = sub i32 %N, %two
+    %3 = call i32 @fib (i32 %1)
+    %4 = call i32 @fib (i32 %2)
+    %5 = add i32 %3, %4
+    ret i32 %5
+}
+</code></pre>
+<h3 id="processes"><a class="markdown-anchor" href="#processes">§</a>Processes</h3>
+<p>Processes represent <em>control-flow</em> executing in a <em>timed</em> fashion and consist of a sequence of basic blocks and instructions. They are used to represent a procedural description of a how a circuit's output signals change in reaction to changing input signals.</p>
+<pre><code>proc &lt;name&gt; (&lt;in_ty1&gt; &lt;in_arg1&gt;, ...) -&gt; (&lt;out_ty1&gt; &lt;out_arg1&gt;, ...) {
+    &lt;bb1&gt;
+    ...
+    &lt;bbN&gt;
+}
+</code></pre>
+<p>A process has a local or global name, input arguments, and output arguments. Input arguments may be used with the <code>prb</code> instruction. Output arguments must be of signal type (<code>T$</code>) and may be used with the <code>drv</code> instruction. The first basic block in a process is the entry block. Processes must contain at least one basic block. Terminator instructions may either branch to another basic block or must be the <code>halt</code> instruction. Processes are instantiated in entities using the <code>inst</code> instruction. Processes may not contain instructions that return execution (<code>ret</code>) and may not instantiate entities/processes (<code>inst</code>).</p>
+<p>Processes may be used to behaviorally model a circuit, as is commonly done in higher-level hardware description languages such as SystemVerilog or VHDL. As such they may represent a richer and more abstract set of behaviors beyond what actual hardware can achieve. One of the tasks of a synthesizer is to transform processes into entities, resolving implicitly modeled state-keeping elements and combinatorial transfer functions into explicit register and gate instances. LLHD aims to provide a standard way for such transformations to occur.</p>
+<h4 id="example-2"><a class="markdown-anchor" href="#example-2">§</a>Example</h4>
+<p>The following process computes the butterfly operation in an FFT combinatorially with a 1ns delay:</p>
+<pre><code>proc @bfly (i32$ %x0, i32$ %x1) -&gt; (i32$ %y0, i32$ %y1) {
+%entry:
+    %x0v = prb i32$ %x0
+    %x1v = prb i32$ %x1
+    %0 = add i32 %x0v, %x1v
+    %1 = sub i32 %x0v, %x1v
+    %d = const time 1ns
+    drv i32$ %y0, %0, %d
+    drv i32$ %y1, %1, %d
+    wait %entry, %x0, %x1
+}
+</code></pre>
+<h3 id="entities"><a class="markdown-anchor" href="#entities">§</a>Entities</h3>
+<p>Processes represent <em>data-flow</em> executing in a <em>timed</em> fashion and consist of a set of instructions. They are used to represent hierarchy in a design, as well as a data-flow description of how a circuit's output signals change in reaction to changing input signals.</p>
+<pre><code>entity &lt;name&gt; (&lt;in_ty1&gt; &lt;in_arg1&gt;, ...) -&gt; (&lt;out_ty1&gt; &lt;out_arg1&gt;, ...) {
+    &lt;inst1&gt;
+    ...
+    &lt;instN&gt;
+}
+</code></pre>
+<p>Eventually every design consists of at least one top-level entity, which may in turn call functions or instantiate processes and entities to form a design hierarchy. There are no basic blocks in an entity. All instructions are considered to execute in a schedule implicitly defined by their data dependencies. Dependency cycles are forbidden (except for the ones formed by probing and driving a signal). The order of instructions is purely cosmetic and does not affect behaviour.</p>
+<h4 id="example-3"><a class="markdown-anchor" href="#example-3">§</a>Example</h4>
+<p>The following entity computes the butterfly operation in an FFT combinatorially with a 1ns delay:</p>
+<pre><code>entity @bfly (i32$ %x0, i32$ %x1) -&gt; (i32$ %y0, i32$ %y1) {
+    %x0v = prb i32$ %x0
+    %x1v = prb i32$ %x1
+    %0 = add i32 %x0v, %x1v
+    %1 = sub i32 %x0v, %x1v
+    %d = const time 1ns
+    drv i32$ %y0, %0, %d
+    drv i32$ %y1, %1, %d
+}
+</code></pre>
+<h3 id="external-units"><a class="markdown-anchor" href="#external-units">§</a>External Units</h3>
+<p>External units allow an LLHD module to refer to functions, processes, and entities declared outside of the module itself. The linker can then be used to resolve these declarations to actual definitions in another module.</p>
+<pre><code>declare &lt;name&gt; (&lt;in_ty1&gt;, ...) &lt;retty&gt;              ; function declaration
+declare &lt;name&gt; (&lt;in_ty1&gt;, ...) -&gt; (&lt;out_ty1&gt;, ...)  ; process/entity declaration
+</code></pre>
+<h3 id="basic-blocks"><a class="markdown-anchor" href="#basic-blocks">§</a>Basic Blocks</h3>
+<p>A basic block has a name and consists of a sequence of instructions. The last instruction must be a terminator; all other instructions must <em>not</em> be a terminator. This ensures that no control flow transfer occurs within a basic block, but rather control enters at the top and leaves at the bottom. A basic block may not be empty. Functions and processes contain at least one basic block.</p>
+<pre><code>%&lt;bb_name&gt;:
+    &lt;inst1&gt;
+    ...
+    &lt;instN&gt;
+    &lt;terminator&gt;
+</code></pre>
 <h2 id="type-system"><a class="markdown-anchor" href="#type-system">§</a>Type System</h2>
 <h3 id="overview"><a class="markdown-anchor" href="#overview">§</a>Overview</h3>
 <p>The following table shows the types available in LLHD. These are outlined in more detail in the following sections.</p>
@@ -370,7 +537,7 @@
 <li><code>ty</code> is the type of the resulting value <code>%a</code> and must match the type of <code>value</code>.</li>
 <li><code>value</code> is the value to be aliased.</li>
 </ul>
-<h4 id="example"><a class="markdown-anchor" href="#example">§</a>Example</h4>
+<h4 id="example-4"><a class="markdown-anchor" href="#example-4">§</a>Example</h4>
 <p>A value <code>%0</code> may be aliased under name <code>foo</code> as follows:</p>
 <pre><code>%0 = const i32 42
 %foo = alias i32 %0
@@ -386,7 +553,7 @@
 <li><code>value</code> is the value each element will have.</li>
 <li><code>value1</code> to <code>valueN</code> are the values for each individual element.</li>
 </ul>
-<h4 id="example-2"><a class="markdown-anchor" href="#example-2">§</a>Example</h4>
+<h4 id="example-5"><a class="markdown-anchor" href="#example-5">§</a>Example</h4>
 <p>An array of 9001 zeros of 8 bits each may be constructed as follows:</p>
 <pre><code>%0 = const i8 0
 %1 = [9001 x i8 %0]
@@ -407,7 +574,7 @@
 <li><code>ty1</code> to <code>tyN</code> is the type of each field in the struct.</li>
 <li><code>value1</code> to <code>valueN</code> is the value of each field in the struct.</li>
 </ul>
-<h4 id="example-3"><a class="markdown-anchor" href="#example-3">§</a>Example</h4>
+<h4 id="example-6"><a class="markdown-anchor" href="#example-6">§</a>Example</h4>
 <p>A struct with three fields of different types may be constructed as follows:</p>
 <pre><code>%0 = const i1 0
 %1 = const i42 9001
@@ -424,7 +591,7 @@
 <li><code>ty</code> must be <code>iN</code> or <code>iN$</code>.</li>
 <li><code>value</code> is the input argument. Must be of type <code>ty</code>.</li>
 </ul>
-<h4 id="example-4"><a class="markdown-anchor" href="#example-4">§</a>Example</h4>
+<h4 id="example-7"><a class="markdown-anchor" href="#example-7">§</a>Example</h4>
 <p>The bits of an integer value may be flipped as follows:</p>
 <pre><code>%0 = const i8 0x0F
 %1 = not i8 %0
@@ -499,7 +666,7 @@
 <li><code>amount</code> determines by how many positions the value is to be shifted. Must be in the range 0 to N, where N is the width of the <code>hidden</code> value.</li>
 <li>The result of the shift operation has the same type as the base value.</li>
 </ul>
-<h4 id="example-5"><a class="markdown-anchor" href="#example-5">§</a>Example</h4>
+<h4 id="example-8"><a class="markdown-anchor" href="#example-8">§</a>Example</h4>
 <p>The operation can be visualized as concatenating the base and the hidden value, then selecting a slice of the resulting bits starting at the offset determined by the <code>amount</code> value.</p>
 <pre><code>%0 = const i8 0b10011001
 %1 = const i12 0b010110100101
@@ -593,7 +760,7 @@ br &lt;value&gt;, &lt;block_if_0&gt;, &lt;block_if_1&gt;
 <p>Note that <code>index</code>, <code>start</code>, and <code>length</code> must be integer constants. You cannot pass dynamically calculated integers for these fields.</p>
 <h4 id="result"><a class="markdown-anchor" href="#result">§</a>Result</h4>
 <p>The <code>insert</code> instruction yields the modified <code>target</code> as a result, which is of type <code>ty</code>.</p>
-<h4 id="example-6"><a class="markdown-anchor" href="#example-6">§</a>Example</h4>
+<h4 id="example-9"><a class="markdown-anchor" href="#example-9">§</a>Example</h4>
 <p>A field of a struct may be modified as follows:</p>
 <pre><code>; %0 = {i32 0, i16 0}
 %1 = insert element {i32, i16} %0, 0, 42
@@ -637,7 +804,7 @@ br &lt;value&gt;, &lt;block_if_0&gt;, &lt;block_if_1&gt;
 <h4 id="result-2"><a class="markdown-anchor" href="#result-2">§</a>Result</h4>
 <p>The <code>extract element</code> instruction yields the value of the selected field, element, or bit. If the target is a struct the returned type is the <code>index</code> field of the struct. If it is an array the returned type is the array's element type. If it is an integer the returned type is the single bit variant of the integer (e.g. <code>i1</code>).</p>
 <p>The <code>extract slice</code> instruction yields the values of the selected elements or bits. If the target is an array the returned type is the same array type but with length <code>length</code>. If the target is an integer the returned type is the same integer type but with width <code>length</code>.</p>
-<h4 id="example-7"><a class="markdown-anchor" href="#example-7">§</a>Example</h4>
+<h4 id="example-10"><a class="markdown-anchor" href="#example-10">§</a>Example</h4>
 <p>A field of a struct may be accessed as follows:</p>
 <pre><code>; %0 = {i32 42, i16 9001}
 %1 = extract element {i32, i16} %0, 0
