@@ -15,7 +15,7 @@ On macOS create a separate temporary directory such that docker can mount it wit
 
     cd server
     mkdir tmp
-    TMPDIR=$PWD/tmp cargo run
+    env TMPDIR=$PWD/tmp cargo run
 
 ## Frontend
 
