@@ -1,4 +1,7 @@
-var md = require("markdown-it")()
+var md = require("markdown-it")({
+		xhtmlOut: true,
+		typographer: true,
+	})
 	.use(require("markdown-it-toc-and-anchor").default, {
 		tocFirstLevel: 2,
 		tocLastLevel: 3,

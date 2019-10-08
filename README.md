@@ -21,6 +21,10 @@ On macOS create a separate temporary directory such that docker can mount it wit
 
 The frontend lives in the `frontend/` directory and is just a static HTML, CSS, and JS file.
 
+To render the specification, run
+
+    npm run render
+
 ## Server
 
 The web server lives in the `server/` directory. During development, you can place the following environment variables in a `.env` file on disk in that directory. In production, these should be set according to the deployment environment.
