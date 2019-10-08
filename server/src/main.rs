@@ -281,8 +281,9 @@ fn basic_secure_docker_command() -> Command {
     cmd.arg("--security-opt=no-new-privileges");
     cmd.args(&["--workdir", "/playground"]);
     cmd.args(&["--net", "none"]);
-    cmd.args(&["--memory", "256m"]);
-    cmd.args(&["--memory-swap", "320m"]);
+    // TODO(fschuiki): Re-enable the following once swap/cgroups are setup.
+    // cmd.args(&["--memory", "256m"]);
+    // cmd.args(&["--memory-swap", "320m"]);
     cmd.args(&["--env", "PLAYGROUND_TIMEOUT=10"]);
     cmd.args(&["--pids-limit", "512"]);
     cmd
