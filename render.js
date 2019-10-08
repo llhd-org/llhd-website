@@ -4,7 +4,7 @@ var md = require("markdown-it")({
 	})
 	.use(require("markdown-it-toc-and-anchor").default, {
 		tocFirstLevel: 2,
-		tocLastLevel: 3,
+		tocLastLevel: 4,
 		tocClassName: null,
 		anchorLinkSymbol: "§",
 		anchorLinkSpace: false,
@@ -26,7 +26,7 @@ fs.writeFileSync("frontend/spec.html", `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<link href="https://fonts.googleapis.com/css?family=Big+Shoulders+Display:700|Open+Sans&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Big+Shoulders+Display:700|Open+Sans:700,400,400i&display=swap" rel="stylesheet">
 <link href="spec.css" rel="stylesheet">
 <title>LLHD Language Reference</title>
 </head>

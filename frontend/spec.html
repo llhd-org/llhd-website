@@ -12,7 +12,7 @@
 	<div class="container">
 		<div class="markdown-body">
 			<nav class="sidebar">
-
+				
 			</nav>
 			<h1 id="llhd-language-reference"><a class="markdown-anchor" href="#llhd-language-reference">§</a>LLHD Language Reference</h1>
 <p>This document specifies the low-level hardware description language. It outlines the architecture, structure, and instruction set, and provides usage examples.</p>
@@ -45,28 +45,70 @@
 <li><a href="#instructions">Instructions</a>
 <ul>
 <li><a href="#overview-2">Overview</a></li>
-<li><a href="#const-constant-value"><code>const</code> - Constant Value</a></li>
-<li><a href="#alias-rename-value"><code>alias</code> - Rename Value</a></li>
-<li><a href="#-construct-array"><code>[...]</code> - Construct Array</a></li>
-<li><a href="#-construct-struct"><code>{...}</code> - Construct Struct</a></li>
-<li><a href="#not-neg-unary-arithmetic"><code>not</code>, <code>neg</code> - Unary Arithmetic</a></li>
-<li><a href="#add-sub-and-or-xor-smul-sdiv-smod-srem-umul-udiv-umod-urem-binary-arithmetic"><code>add</code>, <code>sub</code>, <code>and</code>, <code>or</code>, <code>xor</code>, <code>smul</code>, <code>sdiv</code>, <code>smod</code>, <code>srem</code>, <code>umul</code>, <code>udiv</code>, <code>umod</code>, <code>urem</code> - Binary Arithmetic</a></li>
-<li><a href="#eq-neq-equality-comparison-of-two-values"><code>eq</code>, <code>neq</code> - Equality Comparison of two Values</a></li>
-<li><a href="#slt-sgt-sle-sge-ult-ugt-ule-uge-relational-comparison-of-two-values"><code>slt</code>, <code>sgt</code>, <code>sle</code>, <code>sge</code>, <code>ult</code>, <code>ugt</code>, <code>ule</code>, <code>uge</code> - Relational Comparison of two Values</a></li>
-<li><a href="#shl-shr-shift-a-value"><code>shl</code>, <code>shr</code> - Shift a Value</a></li>
-<li><a href="#mux-pick-a-value-from-an-array"><code>mux</code> - Pick a Value from an Array</a></li>
-<li><a href="#reg-register-to-store-a-value"><code>reg</code> - Register to Store a Value</a></li>
-<li><a href="#br-branch"><code>br</code> - Branch</a></li>
-<li><a href="#insert-insert-value"><code>insert</code> — Insert Value</a></li>
-<li><a href="#extract-extract-value"><code>extract</code> — Extract Value</a></li>
-<li><a href="#shlshr-shift-a-value"><code>shl</code>,<code>shr</code> — Shift a Value</a></li>
+<li><a href="#working-with-values">Working with Values</a>
+<ul>
+<li><a href="#constant-value-const">Constant Value (<code>const</code>)</a></li>
+<li><a href="#value-renaming-alias">Value Renaming (<code>alias</code>)</a></li>
+<li><a href="#array-construction">Array Construction (<code>[...]</code>)</a></li>
+<li><a href="#struct-construction">Struct Construction (<code>{...}</code>)</a></li>
+<li><a href="#inserting-elements-fields-or-bits-insf-inss">Inserting Elements, Fields, or Bits (<code>insf</code> <code>inss</code>)</a></li>
+<li><a href="#extracting-elements-fields-or-bits-extf-exts">Extracting Elements, Fields, or Bits (<code>extf</code> <code>exts</code>)</a></li>
+<li><a href="#value-multiplexing-mux">Value Multiplexing (<code>mux</code>)</a></li>
 </ul>
 </li>
-<li><a href="#call-fpe">Call (<em>fpe</em>)</a></li>
-<li><a href="#instance-e">Instance (<em>e</em>)</a></li>
-<li><a href="#unary-integer-arithmetic-fpe">Unary Integer Arithmetic (<em>fpe</em>)</a></li>
-<li><a href="#binary-integer-arithmetic-fpe">Binary Integer Arithmetic (<em>fpe</em>)</a></li>
-<li><a href="#integer-comparison-fpe">Integer Comparison (<em>fpe</em>)</a></li>
+<li><a href="#bitwise-operators">Bitwise Operators</a>
+<ul>
+<li><a href="#unary-logic-not">Unary Logic (<code>not</code>)</a></li>
+<li><a href="#binary-logic-and-or-xor">Binary Logic (<code>and</code> <code>or</code> <code>xor</code>)</a></li>
+<li><a href="#shift-leftright-shl-shr">Shift Left/Right (<code>shl</code> <code>shr</code>)</a></li>
+</ul>
+</li>
+<li><a href="#arithmetic-operators">Arithmetic Operators</a>
+<ul>
+<li><a href="#unary-arithmetic-neg">Unary Arithmetic (<code>neg</code>)</a></li>
+<li><a href="#binary-arithmetic-add-sub-smul-sdiv-smod-srem-umul-udiv-umod-urem">Binary Arithmetic (<code>add</code> <code>sub</code> <code>smul</code> <code>sdiv</code> <code>smod</code> <code>srem</code> <code>umul</code> <code>udiv</code> <code>umod</code> <code>urem</code>)</a></li>
+</ul>
+</li>
+<li><a href="#comparison-operators">Comparison Operators</a>
+<ul>
+<li><a href="#equality-comparison-eq-neq">Equality Comparison (<code>eq</code> <code>neq</code>)</a></li>
+<li><a href="#relational-comparison-slt-sgt-sle-sge-ult-ugt-ule-uge">Relational Comparison (<code>slt</code> <code>sgt</code> <code>sle</code> <code>sge</code> <code>ult</code> <code>ugt</code> <code>ule</code> <code>uge</code>)</a></li>
+</ul>
+</li>
+<li><a href="#control-flow">Control Flow</a>
+<ul>
+<li><a href="#phi-node-phi">Phi Node (<code>phi</code>)</a></li>
+<li><a href="#branch-br">Branch (<code>br</code>)</a></li>
+<li><a href="#call-call">Call (<code>call</code>)</a></li>
+<li><a href="#return-from-a-function-ret">Return from a Function (<code>ret</code>)</a></li>
+<li><a href="#suspend-process-execution-wait">Suspend Process Execution (<code>wait</code>)</a></li>
+<li><a href="#terminate-process-execution-halt">Terminate Process Execution (<code>halt</code>)</a></li>
+</ul>
+</li>
+<li><a href="#memory">Memory</a>
+<ul>
+<li><a href="#stack-allocation-var">Stack Allocation (<code>var</code>)</a></li>
+<li><a href="#loading-from-memory-ld">Loading from Memory (<code>ld</code>)</a></li>
+<li><a href="#storing-to-memory-st">Storing to Memory (<code>st</code>)</a></li>
+</ul>
+</li>
+<li><a href="#signals-2">Signals</a>
+<ul>
+<li><a href="#creating-a-signal-sig">Creating a Signal (<code>sig</code>)</a></li>
+<li><a href="#probing-the-value-on-a-signal-prb">Probing the Value on a Signal (<code>prb</code>)</a></li>
+<li><a href="#driving-a-value-onto-a-signal-drv">Driving a Value onto a Signal (<code>drv</code>)</a></li>
+</ul>
+</li>
+<li><a href="#structure-and-hierarchy">Structure and Hierarchy</a>
+<ul>
+<li><a href="#storage-element-reg">Storage Element (<code>reg</code>)</a></li>
+<li><a href="#wire-delay-del">Wire Delay (<code>del</code>)</a></li>
+<li><a href="#short-con">Short (<code>con</code>)</a></li>
+<li><a href="#instantiate-processentity-inst">Instantiate Process/Entity (<code>inst</code>)</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </p>
 <hr />
@@ -120,6 +162,7 @@
 <th>Unit</th>
 <th>Paradigm</th>
 <th>Timing</th>
+<th>Models</th>
 </tr>
 </thead>
 <tbody>
@@ -127,16 +170,19 @@
 <td><strong>Function</strong></td>
 <td>control-flow</td>
 <td>immediate</td>
+<td>Ephemeral computation in zero time</td>
 </tr>
 <tr>
 <td><strong>Process</strong></td>
 <td>control-flow</td>
 <td>timed</td>
+<td>Behavioural circuit description</td>
 </tr>
 <tr>
 <td><strong>Entity</strong></td>
 <td>data-flow</td>
 <td>timed</td>
+<td>Structural circuit description</td>
 </tr>
 </tbody>
 </table>
@@ -149,7 +195,7 @@
 }
 </code></pre>
 <p>A function has a local or global name, input arguments, and a return type. The first basic block in a function is the entry block. Functions must contain at least one basic block. Terminator instructions may either branch to another basic block or must be the <code>ret</code> instruction. The argument to <code>ret</code> must be of the return type <code>&lt;retty&gt;</code>. Functions are called using the <code>call</code> instruction. Functions may not contain instructions that suspend execution (<code>wait</code> and <code>halt</code>), may not interact with signals (<code>prb</code>, <code>drv</code>, <code>sig</code>), and may not instantiate entities/processes (<code>inst</code>).</p>
-<h4 id="example"><a class="markdown-anchor" href="#example">§</a>Example</h4>
+<h5 id="example"><a class="markdown-anchor" href="#example">§</a>Example</h5>
 <p>The following function computes the Fibonacci series for a 32 bit signed integer number N:</p>
 <pre><code>func @fib (i32 %N) i32 {
 %entry:
@@ -178,7 +224,7 @@
 </code></pre>
 <p>A process has a local or global name, input arguments, and output arguments. Input arguments may be used with the <code>prb</code> instruction. Output arguments must be of signal type (<code>T$</code>) and may be used with the <code>drv</code> instruction. The first basic block in a process is the entry block. Processes must contain at least one basic block. Terminator instructions may either branch to another basic block or must be the <code>halt</code> instruction. Processes are instantiated in entities using the <code>inst</code> instruction. Processes may not contain instructions that return execution (<code>ret</code>) and may not instantiate entities/processes (<code>inst</code>).</p>
 <p>Processes may be used to behaviorally model a circuit, as is commonly done in higher-level hardware description languages such as SystemVerilog or VHDL. As such they may represent a richer and more abstract set of behaviors beyond what actual hardware can achieve. One of the tasks of a synthesizer is to transform processes into entities, resolving implicitly modeled state-keeping elements and combinatorial transfer functions into explicit register and gate instances. LLHD aims to provide a standard way for such transformations to occur.</p>
-<h4 id="example-2"><a class="markdown-anchor" href="#example-2">§</a>Example</h4>
+<h5 id="example-2"><a class="markdown-anchor" href="#example-2">§</a>Example</h5>
 <p>The following process computes the butterfly operation in an FFT combinatorially with a 1ns delay:</p>
 <pre><code>proc @bfly (i32$ %x0, i32$ %x1) -&gt; (i32$ %y0, i32$ %y1) {
 %entry:
@@ -201,7 +247,7 @@
 }
 </code></pre>
 <p>Eventually every design consists of at least one top-level entity, which may in turn call functions or instantiate processes and entities to form a design hierarchy. There are no basic blocks in an entity. All instructions are considered to execute in a schedule implicitly defined by their data dependencies. Dependency cycles are forbidden (except for the ones formed by probing and driving a signal). The order of instructions is purely cosmetic and does not affect behaviour.</p>
-<h4 id="example-3"><a class="markdown-anchor" href="#example-3">§</a>Example</h4>
+<h5 id="example-3"><a class="markdown-anchor" href="#example-3">§</a>Example</h5>
 <p>The following entity computes the butterfly operation in an FFT combinatorially with a 1ns delay:</p>
 <pre><code>entity @bfly (i32$ %x0, i32$ %x1) -&gt; (i32$ %y0, i32$ %y1) {
     %x0v = prb i32$ %x0
@@ -381,214 +427,241 @@ drv i8$ %wire, %1, %1ns
 <p>Individual fields may be obtained or modified with the <code>extf</code>/<code>insf</code> instructions.</p>
 <h2 id="instructions"><a class="markdown-anchor" href="#instructions">§</a>Instructions</h2>
 <h3 id="overview-2"><a class="markdown-anchor" href="#overview-2">§</a>Overview</h3>
-<p>The following table shows the full instruction set of LLHD. Instructions have limitations as to whether they can appear in an entity, function, or process.</p>
+<p>The following table shows the full instruction set of LLHD. The flags indicate if an instruction</p>
+<ul>
+<li><strong>F</strong>: can appear in a function,</li>
+<li><strong>P</strong>: can appear in a process,</li>
+<li><strong>E</strong>: can appear in an entity, or</li>
+<li><strong>T</strong>: is a terminator.</li>
+</ul>
 <table>
 <thead>
 <tr>
 <th>Instruction</th>
-<th>Allowed In</th>
+<th>Flags</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td><strong>Values</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td><code>const</code></td>
-<td>EFP</td>
+<td>F P E</td>
 <td>Construct a constant value</td>
 </tr>
 <tr>
 <td><code>alias</code></td>
-<td>EFP</td>
+<td>F P E</td>
 <td>Assign a new name to a value</td>
 </tr>
 <tr>
 <td><code>[...]</code></td>
-<td>EFP</td>
+<td>F P E</td>
 <td>Construct an array</td>
 </tr>
 <tr>
 <td><code>{...}</code></td>
-<td>EFP</td>
+<td>F P E</td>
 <td>Construct a struct</td>
 </tr>
 <tr>
-<td><code>not</code></td>
-<td>EFP</td>
-<td>Bitwise NOT</td>
+<td><code>insf</code> <code>inss</code></td>
+<td>F P E</td>
+<td>Insert elements, fields, or bits</td>
 </tr>
 <tr>
-<td><code>neg</code></td>
-<td>EFP</td>
-<td>Two’s complement</td>
-</tr>
-<tr>
-<td><code>add</code></td>
-<td>EFP</td>
-<td>Addition</td>
-</tr>
-<tr>
-<td><code>sub</code></td>
-<td>EFP</td>
-<td>Subtraction</td>
-</tr>
-<tr>
-<td><code>and</code></td>
-<td>EFP</td>
-<td>Bitwise AND</td>
-</tr>
-<tr>
-<td><code>or</code></td>
-<td>EFP</td>
-<td>Bitwise OR</td>
-</tr>
-<tr>
-<td><code>xor</code></td>
-<td>EFP</td>
-<td>Bitwise XOR</td>
-</tr>
-<tr>
-<td><code>smul</code></td>
-<td>EFP</td>
-<td>Signed multiplication</td>
-</tr>
-<tr>
-<td><code>umul</code></td>
-<td>EFP</td>
-<td>Unsigned multiplication</td>
-</tr>
-<tr>
-<td><code>sdiv</code></td>
-<td>EFP</td>
-<td>Signed division</td>
-</tr>
-<tr>
-<td><code>udiv</code></td>
-<td>EFP</td>
-<td>Unsigned division</td>
-</tr>
-<tr>
-<td><code>smod</code></td>
-<td>EFP</td>
-<td>Signed modulo</td>
-</tr>
-<tr>
-<td><code>umod</code></td>
-<td>EFP</td>
-<td>Unsigned modulo</td>
-</tr>
-<tr>
-<td><code>srem</code></td>
-<td>EFP</td>
-<td>Signed remainder</td>
-</tr>
-<tr>
-<td><code>urem</code></td>
-<td>EFP</td>
-<td>Unsigned remainder</td>
-</tr>
-<tr>
-<td><code>eq</code></td>
-<td>EFP</td>
-<td>Check for equality</td>
-</tr>
-<tr>
-<td><code>neq</code></td>
-<td>EFP</td>
-<td>Check for inequality</td>
-</tr>
-<tr>
-<td><code>slt</code></td>
-<td>EFP</td>
-<td>Check for signed less-than ordering</td>
-</tr>
-<tr>
-<td><code>ult</code></td>
-<td>EFP</td>
-<td>Check for unsigned less-than ordering</td>
-</tr>
-<tr>
-<td><code>sgt</code></td>
-<td>EFP</td>
-<td>Check for signed greater-than ordering</td>
-</tr>
-<tr>
-<td><code>ugt</code></td>
-<td>EFP</td>
-<td>Check for unsigned greater-than ordering</td>
-</tr>
-<tr>
-<td><code>sle</code></td>
-<td>EFP</td>
-<td>Check for signed less-than-or-equal ordering</td>
-</tr>
-<tr>
-<td><code>ule</code></td>
-<td>EFP</td>
-<td>Check for unsigned less-than-or-equal ordering</td>
-</tr>
-<tr>
-<td><code>sge</code></td>
-<td>EFP</td>
-<td>Check for signed greater-than-or-equal ordering</td>
-</tr>
-<tr>
-<td><code>uge</code></td>
-<td>EFP</td>
-<td>Check for unsigned greater-than-or-equal ordering</td>
-</tr>
-<tr>
-<td><code>shl</code></td>
-<td>EFP</td>
-<td>Shift a value to the left</td>
-</tr>
-<tr>
-<td><code>shr</code></td>
-<td>EFP</td>
-<td>Shift a value to the right</td>
+<td><code>extf</code> <code>exts</code></td>
+<td>F P E</td>
+<td>Extract elements, fields, or bits</td>
 </tr>
 <tr>
 <td><code>mux</code></td>
-<td>EFP</td>
+<td>F P E</td>
 <td>Choose from an array of values</td>
+</tr>
+<tr>
+<td><strong>Bitwise</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>not</code></td>
+<td>F P E</td>
+<td>Unary logic</td>
+</tr>
+<tr>
+<td><code>and</code> <code>or</code> <code>xor</code></td>
+<td>F P E</td>
+<td>Binary logic</td>
+</tr>
+<tr>
+<td><code>shl</code> <code>shr</code></td>
+<td>F P E</td>
+<td>Shift left or right</td>
+</tr>
+<tr>
+<td><strong>Arithmetic</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>neg</code></td>
+<td>F P E</td>
+<td>Unary arithmetic</td>
+</tr>
+<tr>
+<td><code>add</code> <code>sub</code></td>
+<td>F P E</td>
+<td>Binary arithmetic</td>
+</tr>
+<tr>
+<td><code>smul</code> <code>sdiv</code> <code>smod</code> <code>srem</code></td>
+<td>F P E</td>
+<td>Binary signed arithmetic</td>
+</tr>
+<tr>
+<td><code>umul</code> <code>udiv</code> <code>umod</code> <code>urem</code></td>
+<td>F P E</td>
+<td>Binary unsigned arithmetic</td>
+</tr>
+<tr>
+<td><strong>Comparison</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>eq</code> <code>neq</code></td>
+<td>F P E</td>
+<td>Equality operators</td>
+</tr>
+<tr>
+<td><code>slt</code> <code>sgt</code> <code>sle</code> <code>sge</code></td>
+<td>F P E</td>
+<td>Signed relational operators</td>
+</tr>
+<tr>
+<td><code>ult</code> <code>ugt</code> <code>ule</code> <code>uge</code></td>
+<td>F P E</td>
+<td>Unsigned relational operators</td>
+</tr>
+<tr>
+<td><strong>Control Flow</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>phi</code></td>
+<td>F P</td>
+<td>Reconvergence node</td>
+</tr>
+<tr>
+<td><code>br</code></td>
+<td>F P T</td>
+<td>Branch to a different block</td>
+</tr>
+<tr>
+<td><code>call</code></td>
+<td>F P E</td>
+<td>Call a function</td>
+</tr>
+<tr>
+<td><code>ret</code></td>
+<td>F P T</td>
+<td>Return from a function</td>
+</tr>
+<tr>
+<td><code>wait</code></td>
+<td>P T</td>
+<td>Suspend execution</td>
+</tr>
+<tr>
+<td><code>halt</code></td>
+<td>P T</td>
+<td>Terminate execution</td>
+</tr>
+<tr>
+<td><strong>Memory</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>var</code></td>
+<td>F P</td>
+<td>Allocate memory</td>
+</tr>
+<tr>
+<td><code>ld</code></td>
+<td>F P</td>
+<td>Load value from memory</td>
+</tr>
+<tr>
+<td><code>st</code></td>
+<td>F P</td>
+<td>Store value in memory</td>
+</tr>
+<tr>
+<td><strong>Signals</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sig</code></td>
+<td>E</td>
+<td>Create a signal</td>
+</tr>
+<tr>
+<td><code>prb</code></td>
+<td>E P</td>
+<td>Probe value on signal</td>
+</tr>
+<tr>
+<td><code>drv</code></td>
+<td>E P</td>
+<td>Drive value of signal</td>
+</tr>
+<tr>
+<td><strong>Structural</strong></td>
+<td></td>
+<td></td>
 </tr>
 <tr>
 <td><code>reg</code></td>
 <td>E</td>
-<td>A register to provide storage for a value</td>
+<td>Create a storage element</td>
 </tr>
 <tr>
-<td><code>br</code></td>
-<td>FP</td>
-<td>Branch to a different block</td>
+<td><code>del</code></td>
+<td>E</td>
+<td>Delay a signal</td>
 </tr>
 <tr>
-<td><code>insert</code></td>
-<td>EFP</td>
-<td>Change the value of one or more fields, elements, or bits.</td>
+<td><code>con</code></td>
+<td>E</td>
+<td>Connect two signals</td>
 </tr>
 <tr>
-<td><code>extract</code></td>
-<td>EFP</td>
-<td>Retrieve the value of one or more fields, elements, or bits.</td>
-</tr>
-<tr>
-<td><code>shl</code>, <code>shr</code></td>
-<td>EFP</td>
-<td>Shift a value to the left or right.</td>
+<td><code>inst</code></td>
+<td>E</td>
+<td>Instantiate a process/entity</td>
 </tr>
 </tbody>
 </table>
-<h3 id="const-constant-value"><a class="markdown-anchor" href="#const-constant-value">§</a><code>const</code> - Constant Value</h3>
+<h3 id="working-with-values"><a class="markdown-anchor" href="#working-with-values">§</a>Working with Values</h3>
+<h4 id="constant-value-const"><a class="markdown-anchor" href="#constant-value-const">§</a>Constant Value (<code>const</code>)</h4>
 <p>The <code>const</code> instruction is used to introduce a constant value into the IR. The first version constructs a constant integer value, the second a constant integer signal, and the third a constant time value.</p>
-<pre><code>%a = const iN &lt;int&gt;
-%a = const iN$ &lt;int&gt;
-%a = const time &lt;time&gt;
+<pre><code>%result = const iN &lt;int&gt;
+%result = const iN$ &lt;int&gt;
+%result = const time &lt;time&gt;
 </code></pre>
 <ul>
-<li><code>int</code> is an integer literal</li>
-<li><code>time</code> is a time literal</li>
+<li><code>int</code> is an integer literal such as <code>0b0101</code>, <code>0o1247</code>, <code>129</code>, or <code>0x14F3E</code></li>
+<li><code>time</code> is a time literal such as <code>1s</code>, <code>1s 2d</code>, or <code>1s 2d 3e</code>, where the real component may carry an SI prefix such as <code>as</code>, <code>fs</code>, <code>ps</code>, <code>ns</code>, <code>us</code>, <code>ms</code>.</li>
 </ul>
-<h4 id="examples"><a class="markdown-anchor" href="#examples">§</a>Examples</h4>
+<h5 id="example-4"><a class="markdown-anchor" href="#example-4">§</a>Example</h5>
 <p>A constant 32 bit integer with value 42 may be constructed as follows:</p>
 <pre><code>%0 = const i32 42
 %1 = const i32$ 42
@@ -598,31 +671,33 @@ drv i8$ %wire, %1, %1ns
 <p>A constant time with value 1s+3d+7e may be constructed as follows:</p>
 <pre><code>%0 = const time 1s 3d 7e
 </code></pre>
-<h3 id="alias-rename-value"><a class="markdown-anchor" href="#alias-rename-value">§</a><code>alias</code> - Rename Value</h3>
+<h4 id="value-renaming-alias"><a class="markdown-anchor" href="#value-renaming-alias">§</a>Value Renaming (<code>alias</code>)</h4>
 <p>The <code>alias</code> instruction is used to assign a new name to a value.</p>
-<pre><code>%a = alias &lt;ty&gt; &lt;value&gt;
+<pre><code>%result = alias T %value
 </code></pre>
 <ul>
-<li><code>ty</code> is the type of the resulting value <code>%a</code> and must match the type of <code>value</code>.</li>
-<li><code>value</code> is the value to be aliased.</li>
+<li><code>T</code> is the type of the aliased <code>%value</code>.</li>
+<li><code>%value</code> is the value to be aliased and must be of type <code>T</code>.</li>
+<li><code>%result</code> is of type <code>T</code>.</li>
 </ul>
-<h4 id="example-4"><a class="markdown-anchor" href="#example-4">§</a>Example</h4>
+<h5 id="example-5"><a class="markdown-anchor" href="#example-5">§</a>Example</h5>
 <p>A value <code>%0</code> may be aliased under name <code>foo</code> as follows:</p>
 <pre><code>%0 = const i32 42
 %foo = alias i32 %0
 </code></pre>
-<h3 id="-construct-array"><a class="markdown-anchor" href="#-construct-array">§</a><code>[...]</code> - Construct Array</h3>
+<h4 id="array-construction"><a class="markdown-anchor" href="#array-construction">§</a>Array Construction (<code>[...]</code>)</h4>
 <p>Array values may be constructed in two ways. The first constructs a uniform array where each element has the same value. The second constructs an array with different values for each element. Every element in an array must have the same type.</p>
-<pre><code>%a = [&lt;N&gt; x &lt;ty&gt; &lt;value&gt;]
-%a = [&lt;ty&gt; &lt;value1&gt;, ..., &lt;ty&gt; &lt;valueN&gt;]
+<pre><code>%result = [N x T %value]
+%result = [T %value1, ..., T %valueN]
 </code></pre>
 <ul>
 <li><code>N</code> is the number of elements in the array.</li>
-<li><code>ty</code> is the type of each element. All elements must have the same type.</li>
-<li><code>value</code> is the value each element will have.</li>
-<li><code>value1</code> to <code>valueN</code> are the values for each individual element.</li>
+<li><code>T</code> is the type of each element. All elements must have the same type.</li>
+<li><code>%value</code> is the value each element will have, and is of type <code>T</code>.</li>
+<li><code>%value1</code> to <code>%valueN</code> are the values for each individual element, each of type <code>T</code>.</li>
+<li><code>%result</code> is of type <code>[N x T]</code></li>
 </ul>
-<h4 id="example-5"><a class="markdown-anchor" href="#example-5">§</a>Example</h4>
+<h5 id="example-6"><a class="markdown-anchor" href="#example-6">§</a>Example</h5>
 <p>An array of 9001 zeros of 8 bits each may be constructed as follows:</p>
 <pre><code>%0 = const i8 0
 %1 = [9001 x i8 %0]
@@ -635,15 +710,16 @@ drv i8$ %wire, %1, %1ns
 %3 = [i16 %0, i16 %1, i16 %2]
 ; type(%3) = [3 x i16]
 </code></pre>
-<h3 id="-construct-struct"><a class="markdown-anchor" href="#-construct-struct">§</a><code>{...}</code> - Construct Struct</h3>
+<h4 id="struct-construction"><a class="markdown-anchor" href="#struct-construction">§</a>Struct Construction (<code>{...}</code>)</h4>
 <p>Struct values may be constructed in the following way:</p>
-<pre><code>%a = {&lt;ty1&gt; &lt;value1&gt;, ..., &lt;tyN&gt; &lt;valueN&gt;}
+<pre><code>%result = {T1 %value1, ..., TN %valueN}
 </code></pre>
 <ul>
-<li><code>ty1</code> to <code>tyN</code> is the type of each field in the struct.</li>
-<li><code>value1</code> to <code>valueN</code> is the value of each field in the struct.</li>
+<li><code>T1</code> to <code>TN</code> are the types of each field in the struct.</li>
+<li><code>%value1</code> to <code>%valueN</code> is the value of each field in the struct.</li>
+<li><code>%result</code> is of type <code>{T1, ..., TN}</code>.</li>
 </ul>
-<h4 id="example-6"><a class="markdown-anchor" href="#example-6">§</a>Example</h4>
+<h5 id="example-7"><a class="markdown-anchor" href="#example-7">§</a>Example</h5>
 <p>A struct with three fields of different types may be constructed as follows:</p>
 <pre><code>%0 = const i1 0
 %1 = const i42 9001
@@ -651,169 +727,10 @@ drv i8$ %wire, %1, %1ns
 %3 = {i1 %0, i42 %1, time %2}
 ; type(%3) = {i1, i42, time}
 </code></pre>
-<h3 id="not-neg-unary-arithmetic"><a class="markdown-anchor" href="#not-neg-unary-arithmetic">§</a><code>not</code>, <code>neg</code> - Unary Arithmetic</h3>
-<p>The <code>not</code> operation flips each bit of a value. The <code>neg</code> operation computes the two’s complement of a value, effectively flipping its sign.</p>
-<pre><code>%a = not &lt;ty&gt; &lt;value&gt;
-%a = neg &lt;ty&gt; &lt;value&gt;
-</code></pre>
-<ul>
-<li><code>ty</code> must be <code>iN</code> or <code>iN$</code>.</li>
-<li><code>value</code> is the input argument. Must be of type <code>ty</code>.</li>
-</ul>
-<h4 id="example-7"><a class="markdown-anchor" href="#example-7">§</a>Example</h4>
-<p>The bits of an integer value may be flipped as follows:</p>
-<pre><code>%0 = const i8 0x0F
-%1 = not i8 %0
-; %1 = 0xF0
-</code></pre>
-<p>The sign of an integer may be flipped as follows:</p>
-<pre><code>%0 = const i8 42
-%1 = neg i8 %0
-; %1 = -42
-</code></pre>
-<h3 id="add-sub-and-or-xor-smul-sdiv-smod-srem-umul-udiv-umod-urem-binary-arithmetic"><a class="markdown-anchor" href="#add-sub-and-or-xor-smul-sdiv-smod-srem-umul-udiv-umod-urem-binary-arithmetic">§</a><code>add</code>, <code>sub</code>, <code>and</code>, <code>or</code>, <code>xor</code>, <code>smul</code>, <code>sdiv</code>, <code>smod</code>, <code>srem</code>, <code>umul</code>, <code>udiv</code>, <code>umod</code>, <code>urem</code> - Binary Arithmetic</h3>
-<p>The <code>add</code> and <code>sub</code> operation add or subtract two values.</p>
-<pre><code>%a = add  &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = sub  &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-</code></pre>
-<p>The <code>and</code>, <code>or</code>, and <code>xor</code> operation compute the bitwise AND, OR, and XOR of two values.</p>
-<pre><code>%a = and  &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = or   &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = xor  &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-</code></pre>
-<p>The multiplicative operations are available in a signed (<code>s...</code>) and unsigned (<code>u...</code>) flavor. Choosing one or the other alters how the input operands are interpreted. The <code>mul</code> operation multiplies two values. The <code>div</code> operation divides the left-hand side by the right-hand side value. The <code>mod</code> and <code>rem</code> operation compute the modulo and remainder of the division.</p>
-<pre><code>%a = smul &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = umul &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = sdiv &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = udiv &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = smod &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = umod &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = srem &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = urem &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-</code></pre>
-<ul>
-<li><code>ty</code> must be <code>iN</code> or <code>iN$</code>.</li>
-<li><code>lhs</code> and <code>rhs</code> are the left- and right-hand side arguments. Must be of type <code>ty</code>.</li>
-</ul>
-<h3 id="eq-neq-equality-comparison-of-two-values"><a class="markdown-anchor" href="#eq-neq-equality-comparison-of-two-values">§</a><code>eq</code>, <code>neq</code> - Equality Comparison of two Values</h3>
-<p>The <code>eq</code> and <code>neq</code> operation checks for equality or inequality of two values.</p>
-<pre><code>%a = eq  &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = neq &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-</code></pre>
-<ul>
-<li><code>ty</code> can be any type.</li>
-<li><code>lhs</code> and <code>rhs</code> are the left- and right-hand side arguments of the comparison. Must be of type <code>ty</code>.</li>
-<li>The result of the operation is of type <code>i1</code>.</li>
-</ul>
-<h3 id="slt-sgt-sle-sge-ult-ugt-ule-uge-relational-comparison-of-two-values"><a class="markdown-anchor" href="#slt-sgt-sle-sge-ult-ugt-ule-uge-relational-comparison-of-two-values">§</a><code>slt</code>, <code>sgt</code>, <code>sle</code>, <code>sge</code>, <code>ult</code>, <code>ugt</code>, <code>ule</code>, <code>uge</code> - Relational Comparison of two Values</h3>
-<p>The relational operators are available in a signed (<code>s...</code>) and unsigned (<code>u...</code>) flavor. Choosing one or the other alters how the input operands are interpreted. The <code>lt</code>, <code>gt</code>, <code>le</code>, and <code>ge</code> operation checks for less-than, greater-than, less-than-or-equal, and greater-than-or-equal ordering.</p>
-<pre><code>%a = slt &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = ult &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = sgt &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = ugt &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = sle &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = ule &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = sge &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-%a = uge &lt;ty&gt; &lt;lhs&gt;, &lt;rhs&gt;
-</code></pre>
-<ul>
-<li><code>ty</code> must be <code>iN</code> or <code>iN$</code>.</li>
-<li><code>lhs</code> and <code>rhs</code> are the left- and right-hand side arguments of the comparison. Must be of type <code>ty</code>.</li>
-<li>The result of the operation is of type <code>i1</code>.</li>
-</ul>
-<h3 id="shl-shr-shift-a-value"><a class="markdown-anchor" href="#shl-shr-shift-a-value">§</a><code>shl</code>, <code>shr</code> - Shift a Value</h3>
-<p>The <code>shl</code> and <code>shr</code> operation shifts a value to the left or right by a given amount.</p>
-<pre><code>%a = shl &lt;ty1&gt; &lt;base&gt;, &lt;ty2&gt; &lt;hidden&gt;, &lt;ty3&gt; &lt;amount&gt;
-%a = shr &lt;ty1&gt; &lt;base&gt;, &lt;ty2&gt; &lt;hidden&gt;, &lt;ty3&gt; &lt;amount&gt;
-</code></pre>
-<ul>
-<li><code>ty1</code> is the type of the base value and the type of the shift result. Can be <code>iN</code> or any array, or a signal/pointer of thereof.</li>
-<li><code>base</code> is the base value that is produced if the shift amount is 0.</li>
-<li><code>ty2</code> is the type of the hidden value. Must be of the same as <code>ty1</code> but may have a different number of bits or elements.</li>
-<li><code>hidden</code> is the hidden value that is uncovered by non-zero shift amounts.</li>
-<li><code>ty3</code> is the type of the shift amount. Must be <code>iN</code>.</li>
-<li><code>amount</code> determines by how many positions the value is to be shifted. Must be in the range 0 to N, where N is the width of the <code>hidden</code> value.</li>
-<li>The result of the shift operation has the same type as the base value.</li>
-</ul>
-<h4 id="example-8"><a class="markdown-anchor" href="#example-8">§</a>Example</h4>
-<p>The operation can be visualized as concatenating the base and the hidden value, then selecting a slice of the resulting bits starting at the offset determined by the <code>amount</code> value.</p>
-<pre><code>%0 = const i8 0b10011001
-%1 = const i12 0b010110100101
-%2 = const i3 6
-
-%3 = shl i8 %0, i12 %1, i3 %2
-; %3 = 0b01010110
-
-; |%0----||%1--------|
-; 10011001010110100101
-; &gt;&gt;&gt;&gt;&gt;&gt;|%3----|
-
-%4 = shr i8 %0, i12 %1, i3 %2
-; %4 = 0b10010110
-
-; |%1--------||%0----|
-; 01011010010110011001
-;       |%4----|&lt;&lt;&lt;&lt;&lt;&lt;
-</code></pre>
-<h3 id="mux-pick-a-value-from-an-array"><a class="markdown-anchor" href="#mux-pick-a-value-from-an-array">§</a><code>mux</code> - Pick a Value from an Array</h3>
-<p>The <code>mux</code> operation chooses one of an array of values based on a given selector value.</p>
-<pre><code>%a = mux &lt;ty&gt; &lt;array&gt;, &lt;ty_sel&gt; &lt;sel&gt;
-</code></pre>
-<ul>
-<li><code>ty</code> is the type of the <code>array</code>.</li>
-<li><code>array</code> is a list of values from which the multiplexer selects.</li>
-<li><code>ty_sel</code> is the type of the selector. Must be <code>iN</code> or <code>iN$</code>.</li>
-<li><code>sel</code> is the selector and must be in the range 0 to M-1, where M is the number of elements in the array.</li>
-<li>The result of the operation is the element type of the array <code>ty</code>.</li>
-</ul>
-<h3 id="reg-register-to-store-a-value"><a class="markdown-anchor" href="#reg-register-to-store-a-value">§</a><code>reg</code> - Register to Store a Value</h3>
-<p>The <code>reg</code> instruction provides a storage element for a value. It may only be used inside an entity.</p>
-<pre><code>%a = reg &lt;ty&gt; &lt;init&gt;, &lt;value&gt; &lt;mode&gt; &lt;trigger_ty&gt; &lt;trigger&gt;, ...
-</code></pre>
-<ul>
-<li><code>ty</code> is the type of the stored value. Must be a signal.</li>
-<li><code>init</code> is the initial value. Must be of type <code>ty</code>.</li>
-<li>Each comma-separated triple following the initial value specifies a storage trigger:
-<ul>
-<li><code>value</code> is the value to be stored in the register. Must be of type <code>ty</code>.</li>
-<li><code>mode</code> is the trigger mode and may be one of the following:
-<ul>
-<li><code>low</code> stores <code>value</code> while the trigger is low. Models active-low resets and low-transparent latches.</li>
-<li><code>high</code> stores <code>value</code> while the trigger is high. Models active-high resets and high-transparent latches.</li>
-<li><code>rise</code> stores <code>value</code> upon the rising edge of the trigger. Models rising-edge flip-flops.</li>
-<li><code>fall</code> stores <code>value</code> upon the falling edge of the trigger. Models falling-edge flip-flops.</li>
-<li><code>both</code> stores <code>value</code> upon either a rising or a falling edge of the trigger. Models dual-edge flip-flops.</li>
-</ul>
-</li>
-<li><code>trigger_ty</code> is the trigger type. Must be <code>i1</code>.</li>
-<li><code>trigger</code> is the trigger value. Must be of type <code>trigger_ty</code>.</li>
-<li>In case multiple triggers apply the left-most takes precedence.</li>
-</ul>
-</li>
-</ul>
-<h4 id="examples-2"><a class="markdown-anchor" href="#examples-2">§</a>Examples</h4>
-<p>A rising, falling, and dual-edge triggered flip-flop:</p>
-<pre><code>%Q = reg i8$ %init, %D rise i1$ %CLK
-%Q = reg i8$ %init, %D fall i1$ %CLK
-%Q = reg i8$ %init, %D both i1$ %CLK
-</code></pre>
-<p>A rising-edge triggered flip-flop with active-low reset:</p>
-<pre><code>%Q = reg i8$ %init, %init low i1$ %RSTB, %D rise i1$ %CLK
-</code></pre>
-<p>A transparent-low and transparent-high latch:</p>
-<pre><code>%Q = reg i8$ %init, %D low i1$ %CLK
-%Q = reg i8$ %init, %D high i1$ %CLK
-</code></pre>
-<p>An SR latch:</p>
-<pre><code>%0 = const i1$ 0
-%1 = const i1$ 1
-%Q = reg i1$ %0, %0 high i1$ %R, %1 high i1$ %S
-</code></pre>
-<h3 id="br-branch"><a class="markdown-anchor" href="#br-branch">§</a><code>br</code> - Branch</h3>
-<pre><code>br &lt;block&gt;
-br &lt;value&gt;, &lt;block_if_0&gt;, &lt;block_if_1&gt;
-</code></pre>
-<h3 id="insert-insert-value"><a class="markdown-anchor" href="#insert-insert-value">§</a><code>insert</code> — Insert Value</h3>
+<h4 id="inserting-elements-fields-or-bits-insf-inss"><a class="markdown-anchor" href="#inserting-elements-fields-or-bits-insf-inss">§</a>Inserting Elements, Fields, or Bits (<code>insf</code> <code>inss</code>)</h4>
+<blockquote>
+<p>TODO(fschuiki): Update to current names/semantics.</p>
+</blockquote>
 <p>The <code>insert</code> instruction may be used to change the value of fields of structs, elements of arrays, or bits of integers. It comes in two variants: <code>insert element</code> operates on single elements, while <code>insert slice</code> operates on a slice of consecutive elements.</p>
 <pre><code>%r = insert element &lt;ty&gt; &lt;target&gt;, &lt;index&gt;, &lt;value&gt;
 %r = insert slice &lt;ty&gt; &lt;target&gt;, &lt;start&gt;, &lt;length&gt;, &lt;value&gt;
@@ -827,9 +744,9 @@ br &lt;value&gt;, &lt;block_if_0&gt;, &lt;block_if_1&gt;
 <li><code>value</code> is the value to be assigned o the selected field, elements, or bits. Its type must correspond to a single field, element, or bit in case of the <code>insert element</code> variant, or an array or integer of length <code>length</code> in case of the <code>insert slice</code> variant. A value.</li>
 </ul>
 <p>Note that <code>index</code>, <code>start</code>, and <code>length</code> must be integer constants. You cannot pass dynamically calculated integers for these fields.</p>
-<h4 id="result"><a class="markdown-anchor" href="#result">§</a>Result</h4>
+<h5 id="result"><a class="markdown-anchor" href="#result">§</a>Result</h5>
 <p>The <code>insert</code> instruction yields the modified <code>target</code> as a result, which is of type <code>ty</code>.</p>
-<h4 id="example-9"><a class="markdown-anchor" href="#example-9">§</a>Example</h4>
+<h5 id="example-8"><a class="markdown-anchor" href="#example-8">§</a>Example</h5>
 <p>A field of a struct may be modified as follows:</p>
 <pre><code>; %0 = {i32 0, i16 0}
 %1 = insert element {i32, i16} %0, 0, 42
@@ -855,7 +772,10 @@ br &lt;value&gt;, &lt;block_if_0&gt;, &lt;block_if_1&gt;
 %1 = insert slice i32 %0, 0, 2, 3
 ; %1 = i32 11
 </code></pre>
-<h3 id="extract-extract-value"><a class="markdown-anchor" href="#extract-extract-value">§</a><code>extract</code> — Extract Value</h3>
+<h4 id="extracting-elements-fields-or-bits-extf-exts"><a class="markdown-anchor" href="#extracting-elements-fields-or-bits-extf-exts">§</a>Extracting Elements, Fields, or Bits (<code>extf</code> <code>exts</code>)</h4>
+<blockquote>
+<p>TODO(fschuiki): Update to current names/semantics.</p>
+</blockquote>
 <p>The <code>extract</code> instruction may be used to obtain the value of fields of structs, elements of arrays, or bits of integers. It comes in two variants: <code>extract element</code> operates on single elements, while <code>extract slice</code> operates on a slice of consecutive elements.</p>
 <pre><code>%r = extract element &lt;ty&gt; &lt;target&gt;, &lt;index&gt;
 %r = extract slice &lt;ty&gt; &lt;target&gt;, &lt;start&gt;, &lt;length&gt;
@@ -868,12 +788,12 @@ br &lt;value&gt;, &lt;block_if_0&gt;, &lt;block_if_1&gt;
 <li><code>length</code> is the number of elements or bits after <code>start</code> to be accessed. An unsigned integer.</li>
 </ul>
 <p>Note that <code>index</code>, <code>start</code>, and <code>length</code> must be integer constants. You cannot pass dynamically calculated integers for these fields.</p>
-<h4 id="types"><a class="markdown-anchor" href="#types">§</a>Types</h4>
+<h5 id="types"><a class="markdown-anchor" href="#types">§</a>Types</h5>
 <p>The basic operation of <code>extract</code> is defined on integer, struct, and array types. If the target is a signal or pointer type around a struct or array, the instruction returns a signal or pointer of the selected field or elements.</p>
-<h4 id="result-2"><a class="markdown-anchor" href="#result-2">§</a>Result</h4>
+<h5 id="result-2"><a class="markdown-anchor" href="#result-2">§</a>Result</h5>
 <p>The <code>extract element</code> instruction yields the value of the selected field, element, or bit. If the target is a struct the returned type is the <code>index</code> field of the struct. If it is an array the returned type is the array’s element type. If it is an integer the returned type is the single bit variant of the integer (e.g. <code>i1</code>).</p>
 <p>The <code>extract slice</code> instruction yields the values of the selected elements or bits. If the target is an array the returned type is the same array type but with length <code>length</code>. If the target is an integer the returned type is the same integer type but with width <code>length</code>.</p>
-<h4 id="example-10"><a class="markdown-anchor" href="#example-10">§</a>Example</h4>
+<h5 id="example-9"><a class="markdown-anchor" href="#example-9">§</a>Example</h5>
 <p>A field of a struct may be accessed as follows:</p>
 <pre><code>; %0 = {i32 42, i16 9001}
 %1 = extract element {i32, i16} %0, 0
@@ -899,7 +819,7 @@ br &lt;value&gt;, &lt;block_if_0&gt;, &lt;block_if_1&gt;
 %1 = extract slice i32 %0, 0, 2
 ; %1 = i2 3
 </code></pre>
-<h5 id="signals"><a class="markdown-anchor" href="#signals">§</a>Signals</h5>
+<h6 id="signals"><a class="markdown-anchor" href="#signals">§</a>Signals</h6>
 <p>The <code>extract</code> instruction may be used to dissect integer, struct, and array signals into smaller subsignals that alias the selected bits, field, or elements and may then be driven individually.</p>
 <p>A subsignal of an integer signal may be obtained as follows:</p>
 <pre><code>; %0 = sig i32
@@ -920,7 +840,7 @@ br &lt;value&gt;, &lt;block_if_0&gt;, &lt;block_if_1&gt;
 ; typeof(%1) = i32$
 ; typeof(%2) = [2 x i32]$
 </code></pre>
-<h5 id="pointers"><a class="markdown-anchor" href="#pointers">§</a>Pointers</h5>
+<h6 id="pointers"><a class="markdown-anchor" href="#pointers">§</a>Pointers</h6>
 <p>The <code>extract</code> instruction may be used to obtain a pointer to a struct field, or a pointer to one or more array fields. These pointers alias the selected field or elements and may be used in load and store operations.</p>
 <p>A pointer to specific bits of an integer may be obtained as follows:</p>
 <pre><code>; %0 = var i32
@@ -941,103 +861,481 @@ br &lt;value&gt;, &lt;block_if_0&gt;, &lt;block_if_1&gt;
 ; typeof(%1) = i32*
 ; typeof(%2) = [2 x i32]*
 </code></pre>
-<h3 id="shlshr-shift-a-value"><a class="markdown-anchor" href="#shlshr-shift-a-value">§</a><code>shl</code>,<code>shr</code> — Shift a Value</h3>
-<p>The <code>shl</code> and <code>shr</code> instructions may be used to shift the bits of a number or the elements of an array to the left or right.</p>
-<pre><code>%r = shl &lt;ty&gt; &lt;target&gt;, &lt;lsb&gt;, &lt;amount&gt;
-%r = shr &lt;ty&gt; &lt;target&gt;, &lt;msb&gt;, &lt;amount&gt;
+<h4 id="value-multiplexing-mux"><a class="markdown-anchor" href="#value-multiplexing-mux">§</a>Value Multiplexing (<code>mux</code>)</h4>
+<pre><code>%result = mux Ta %array, Ts %sel
 </code></pre>
+<p>The <code>mux</code> operation chooses one of an array of values based on a given selector value.</p>
 <ul>
-<li><code>ty</code> is the type of the target number or array.</li>
-<li><code>target</code> is the number or array to be modified.</li>
-<li><code>lsb</code> and <code>msb</code> determines the value of the bit or element that is revealed due to the shift.</li>
-<li><code>amount</code> is the number of bits or elements the value is shifted. Must be an integer and is interpreted as unsigned.</li>
+<li><code>Ta</code> is the type of the <code>%array</code>.</li>
+<li><code>%array</code> is a list of values from which the multiplexer selects.</li>
+<li><code>Ts</code> is the type of the selector. Must be <code>iN</code>.</li>
+<li><code>%sel</code> is the selector and must be in the range 0 to M-1, where M is the number of elements in <code>%array</code>.</li>
+<li>The result of the operation is the element type of <code>Ta</code>.</li>
 </ul>
-<p>The returned value is of type <code>ty</code>. The shift <code>amount</code> may exceed the bit width or number of elements of <code>target</code>, in which case the result has all bits or elements set to <code>lsb</code> or <code>msb</code>.</p>
-<h4 id="types-2"><a class="markdown-anchor" href="#types-2">§</a>Types</h4>
-<p>The type of the value for inserted bits or elements, <code>lsb</code> and <code>msb</code>, must be the single-bit equivalent of <code>ty</code> if it is a number, or the element type of <code>ty</code> if it is an array.</p>
-<h4 id="examples-3"><a class="markdown-anchor" href="#examples-3">§</a>Examples</h4>
-<p>A logical left or right shift of an integer may be performed as follows:</p>
-<pre><code>; %0 = i32 42
-%1 = shl i32 %0, i1 0, i32 3
-%2 = shr i32 %0, i1 0, i32 3
-; %1 = i32 5
-; %2 = i32 336
+<h3 id="bitwise-operators"><a class="markdown-anchor" href="#bitwise-operators">§</a>Bitwise Operators</h3>
+<h4 id="unary-logic-not"><a class="markdown-anchor" href="#unary-logic-not">§</a>Unary Logic (<code>not</code>)</h4>
+<pre><code>%result = not T %value
 </code></pre>
-<p>An arithmetic right shift of an integer which maintains sign extension may be performed as follows:</p>
-<pre><code>; %0 = i32 -42
-%sign = extract element i32 %0, 31
-%1 = shr i32 %0, %sign, i32 3
-; %1 = i32 -6
-</code></pre>
-<p>The elements of an array may be shifted to the left or right as follows:</p>
-<pre><code>; %0 = [i32 1, 2, 3, 4]
-%1 = shl [4 x i32] %0, i32 9, i32 3
-%2 = shr [4 x i32] %0, i32 9, i32 3
-; %1 = [i32 4, 9, 9, 9]
-; %2 = [i32 9, 9, 9, 1]
-</code></pre>
-<h2 id="call-fpe"><a class="markdown-anchor" href="#call-fpe">§</a>Call (<em>fpe</em>)</h2>
-<pre><code>call &lt;target&gt; (&lt;args,...&gt;)
-</code></pre>
-<p>The call instruction transfers control to a function declared in the module and yields the function’s return value. If used in an entity, the function is reevaluated whenever its input arguments change.</p>
-<h2 id="instance-e"><a class="markdown-anchor" href="#instance-e">§</a>Instance (<em>e</em>)</h2>
-<pre><code>inst &lt;target&gt; (&lt;inputs,...&gt;) (&lt;outputs,...&gt;)
-</code></pre>
-<p>The instance instruction instantiates a process or entity declared in the module and connects its inputs and outputs.</p>
-<h2 id="unary-integer-arithmetic-fpe"><a class="markdown-anchor" href="#unary-integer-arithmetic-fpe">§</a>Unary Integer Arithmetic (<em>fpe</em>)</h2>
-<pre><code>not &lt;ty&gt; &lt;arg&gt;
-</code></pre>
-<p>These instructions perform unary arithmetic operations on a single integer value <code>arg</code>. The operand and the result of the instruction are of type <code>ty</code>, which must be an integer type <code>iN</code>. The operations performed are as follows:</p>
+<p>The <code>not</code> operation flips each bit of a value.</p>
 <ul>
-<li><code>not</code>: Bitwise negation of the value. Every bit that is 1 becomes a 0, and vice versa.</li>
+<li><code>T</code> must be <code>iN</code> or <code>lN</code>.</li>
+<li><code>%value</code> is the input argument of type <code>T</code>.</li>
+<li><code>%result</code> is of type <code>T</code>.</li>
 </ul>
-<h2 id="binary-integer-arithmetic-fpe"><a class="markdown-anchor" href="#binary-integer-arithmetic-fpe">§</a>Binary Integer Arithmetic (<em>fpe</em>)</h2>
-<pre><code>add &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-sub &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-mul &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-div &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-mod &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-rem &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-and &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-or  &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-xor &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+<h5 id="example-10"><a class="markdown-anchor" href="#example-10">§</a>Example</h5>
+<pre><code>%0 = const i1 0
+%1 = not i1 %0  ; %1 = 1
 </code></pre>
-<p>These instructions perform binary arithmetic operations on two integer values <code>lhs</code> and <code>rhs</code>. Both operands and the result of the instruction are of type <code>ty</code>, which must be an integer type <code>iN</code>. The operations performed are as follows:</p>
+<h5 id="truth-table-for-in"><a class="markdown-anchor" href="#truth-table-for-in">§</a>Truth Table for <code>iN</code></h5>
+<table>
+<thead>
+<tr>
+<th><code>not</code></th>
+<th><strong>0</strong></th>
+<th><strong>1</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h5 id="truth-table-for-ln"><a class="markdown-anchor" href="#truth-table-for-ln">§</a>Truth Table for <code>lN</code></h5>
+<blockquote>
+<p>TODO</p>
+</blockquote>
+<h4 id="binary-logic-and-or-xor"><a class="markdown-anchor" href="#binary-logic-and-or-xor">§</a>Binary Logic (<code>and</code> <code>or</code> <code>xor</code>)</h4>
+<pre><code>%result = and T %lhs, %rhs
+%result = or  T %lhs, %rhs
+%result = xor T %lhs, %rhs
+</code></pre>
+<p>The <code>and</code>, <code>or</code>, and <code>xor</code> instructions compute the bitwise AND, OR, and XOR of two values, respectively.</p>
 <ul>
-<li><code>add</code>: Addition</li>
-<li><code>sub</code>: Subtraction</li>
-<li><code>mul</code>: Multiplication</li>
-<li><code>div</code>: Division rounding towards negative infinity.</li>
-<li><code>mod</code>: Modulo. The result of the operation is <code>lhs + x * rhs</code> for the smallest <code>x</code> that makes the result positive.</li>
-<li><code>rem</code>: Remainder.</li>
-<li><code>and</code>: Bitwise logic AND. Each resulting bit is 1 iff both of the argument bits are 1.</li>
-<li><code>or</code>: Bitwise logic OR. Each resulting bit is 1 iff either of the argument bits are 1.</li>
-<li><code>xor</code>: Bitwise logic XOR. Each resulting bit is 1 iff the argument bits differ.</li>
+<li><code>T</code> must be <code>iN</code> or <code>lN</code>.</li>
+<li><code>%lhs</code> and <code>%rhs</code> are the input arguments of type <code>T</code>.</li>
+<li><code>%result</code> is of type <code>T</code>.</li>
 </ul>
-<h2 id="integer-comparison-fpe"><a class="markdown-anchor" href="#integer-comparison-fpe">§</a>Integer Comparison (<em>fpe</em>)</h2>
-<pre><code>cmp eq  &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-cmp neq &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-cmp slt &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-cmp sgt &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-cmp sle &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-cmp sge &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-cmp ult &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-cmp ugt &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-cmp ule &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
-cmp uge &lt;ty&gt; &lt;lhs&gt; &lt;rhs&gt;
+<h5 id="example-11"><a class="markdown-anchor" href="#example-11">§</a>Example</h5>
+<pre><code>%0 = const i4 0b0011
+%1 = const i4 0b0101
+%2 = and i4 %0, %1  ; %2 = 0b0001
+%3 = or  i4 %0, %1  ; %3 = 0b0111
+%4 = xor i4 %0, %1  ; %4 = 0b0110
 </code></pre>
-<p>These isntructions compare two integer values and yield a <code>i1</code> result. The operands are of type <code>ty</code>, which must be an integer type <code>iN</code>. The operations performed are as follows:</p>
+<h5 id="truth-table-for-in-2"><a class="markdown-anchor" href="#truth-table-for-in-2">§</a>Truth Table for <code>iN</code></h5>
+<table>
+<thead>
+<tr>
+<th><code>and</code></th>
+<th><strong>0</strong></th>
+<th><strong>1</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><code>or </code></th>
+<th><strong>0</strong></th>
+<th><strong>1</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><code>xor</code></th>
+<th><strong>0</strong></th>
+<th><strong>1</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h5 id="truth-table-for-ln-2"><a class="markdown-anchor" href="#truth-table-for-ln-2">§</a>Truth Table for <code>lN</code></h5>
+<blockquote>
+<p>TODO</p>
+</blockquote>
+<h4 id="shift-leftright-shl-shr"><a class="markdown-anchor" href="#shift-leftright-shl-shr">§</a>Shift Left/Right (<code>shl</code> <code>shr</code>)</h4>
+<pre><code>%result = shl T %base, Th %hidden, Ta %amount
+%result = shr T %base, Th %hidden, Ta %amount
+</code></pre>
+<p>The <code>shl</code> and <code>shr</code> instruction shifts a value to the left or right by a given amount. The instruction is transparent to signals and pointers. For example, passing a signal as argument will shift the underlying value and return a signal to the shifted value.</p>
 <ul>
-<li><code>eq</code>: Equality</li>
-<li><code>neq</code>: Inequality</li>
-<li><code>slt</code>: <code>lhs &lt; rhs</code>, both arguments treated as signed values.</li>
-<li><code>sgt</code>: <code>lhs &gt; rhs</code>, both arguments treated as signed values.</li>
-<li><code>sle</code>: <code>lhs &lt;= rhs</code>, both arguments treated as signed values.</li>
-<li><code>sge</code>: <code>lhs &gt;= rhs</code>, both arguments treated as signed values.</li>
-<li><code>ult</code>: <code>lhs &lt; rhs</code>, both arguments treated as unsigned values.</li>
-<li><code>ugt</code>: <code>lhs &gt; rhs</code>, both arguments treated as unsigned values.</li>
-<li><code>ule</code>: <code>lhs &lt;= rhs</code>, both arguments treated as unsigned values.</li>
-<li><code>uge</code>: <code>lhs &gt;= rhs</code>, both arguments treated as unsigned values.</li>
+<li><code>T</code> must be <code>iN</code>, <code>lN</code>, or an array; or a signal/pointer thereof.</li>
+<li><code>Th</code> must be of the same type as <code>T</code>, but may have a different number of bits or elements.</li>
+<li>The <em>maximum shift amount</em> is determined by the number of bits or elements in <code>Th</code>.</li>
+<li><code>Ta</code> must be <code>iN</code>.</li>
+<li><code>%base</code> is the base value that is produced if the shift amount is 0, and must be of type <code>T</code>.</li>
+<li><code>%hidden</code> is the hidden value that is uncovered by non-zero shift amounts, and must be of type <code>Th</code>.</li>
+<li><code>%amount</code> is the unsigned shift amount and determines by how many positions the value is to be shifted. Must be of type <code>Ta</code>. Behavior for values <code>%amount &gt; N</code> is undefined.</li>
+<li><code>%result</code> is of type <code>T</code>.</li>
+</ul>
+<h5 id="example-12"><a class="markdown-anchor" href="#example-12">§</a>Example</h5>
+<p>The operation can be visualized as concatenating the <code>%base</code> and <code>%hidden</code> values, then selecting a slice of the resulting bits or elements starting at the offset determined by the <code>%amount</code> value. For example:</p>
+<pre><code>%base = const i8 0b10011001         ; base
+%hidden = const i12 0b010110100101  ; hidden
+%amount = const i3 6                ; amount
+</code></pre>
+<p>Left shift:</p>
+<pre><code>%L = shl i8 %base, i12 %hidden, i3 %amount  ; %L = 0b01010110
+
+; |-base-||--hidden--|
+; 10011001010110100101
+; &gt;&gt;&gt;&gt;&gt;&gt;|--%L--|
+</code></pre>
+<p>Right shift:</p>
+<pre><code>%R = shr i8 %base, i12 %hidden, i3 %amount  ; %R = 0b10010110
+
+; |--hidden--||-base-|
+; 01011010010110011001
+;       |--%R--|&lt;&lt;&lt;&lt;&lt;&lt;
+</code></pre>
+<h3 id="arithmetic-operators"><a class="markdown-anchor" href="#arithmetic-operators">§</a>Arithmetic Operators</h3>
+<h4 id="unary-arithmetic-neg"><a class="markdown-anchor" href="#unary-arithmetic-neg">§</a>Unary Arithmetic (<code>neg</code>)</h4>
+<pre><code>%result = neg T %value
+</code></pre>
+<p>The <code>neg</code> operation computes the two’s complement of a value, effectively flipping its sign.</p>
+<ul>
+<li><code>T</code> must be <code>iN</code>.</li>
+<li><code>%value</code> is the input argument of type <code>T</code>.</li>
+<li><code>%result</code> is of type <code>T</code>.</li>
+</ul>
+<h5 id="example-13"><a class="markdown-anchor" href="#example-13">§</a>Example</h5>
+<pre><code>%0 = const i8 42
+%1 = neg i8 %0  ; %1 = -42
+</code></pre>
+<h4 id="binary-arithmetic-add-sub-smul-sdiv-smod-srem-umul-udiv-umod-urem"><a class="markdown-anchor" href="#binary-arithmetic-add-sub-smul-sdiv-smod-srem-umul-udiv-umod-urem">§</a>Binary Arithmetic (<code>add</code> <code>sub</code> <code>smul</code> <code>sdiv</code> <code>smod</code> <code>srem</code> <code>umul</code> <code>udiv</code> <code>umod</code> <code>urem</code>)</h4>
+<pre><code>%result = add  T %lhs, %rhs
+%result = sub  T %lhs, %rhs
+
+%result = smul T %lhs, %rhs
+%result = sdiv T %lhs, %rhs
+%result = smod T %lhs, %rhs
+%result = srem T %lhs, %rhs
+
+%result = umul T %lhs, %rhs
+%result = udiv T %lhs, %rhs
+%result = umod T %lhs, %rhs
+%result = urem T %lhs, %rhs
+</code></pre>
+<p>The <code>add</code> and <code>sub</code> instructions add or subtract two values. The multiplicative operations are available in a signed (<code>s</code> prefix) and unsigned (<code>u</code> prefix) flavor. Input operands are interpreted according to this prefix. The <code>umul</code> <code>smul</code> instructions multiplies two values. The <code>udiv</code> <code>sdiv</code> instructions divides the left-hand side by the right-hand side value. The <code>umod</code> <code>smod</code> and <code>urem</code> <code>srem</code> operations compute the modulo and remainder of the division.</p>
+<ul>
+<li><code>T</code> must be <code>iN</code>.</li>
+<li><code>%lhs</code> and <code>%rhs</code> are the left- and right-hand side arguments and must be of type <code>T</code>.</li>
+<li><code>%result</code> is of type <code>T</code>.</li>
+</ul>
+<h3 id="comparison-operators"><a class="markdown-anchor" href="#comparison-operators">§</a>Comparison Operators</h3>
+<h4 id="equality-comparison-eq-neq"><a class="markdown-anchor" href="#equality-comparison-eq-neq">§</a>Equality Comparison (<code>eq</code> <code>neq</code>)</h4>
+<pre><code>%result = eq  T %lhs, %rhs
+%result = neq T %lhs, %rhs
+</code></pre>
+<p>The <code>eq</code> and <code>neq</code> instruction checks for equality or inequality of two values.</p>
+<ul>
+<li><code>T</code> can be any type.</li>
+<li><code>%lhs</code> and <code>%rhs</code> are the left- and right-hand side arguments of the comparison and must be of type <code>T</code>.</li>
+<li><code>%result</code> is of type <code>i1</code>.</li>
+</ul>
+<h4 id="relational-comparison-slt-sgt-sle-sge-ult-ugt-ule-uge"><a class="markdown-anchor" href="#relational-comparison-slt-sgt-sle-sge-ult-ugt-ule-uge">§</a>Relational Comparison (<code>slt</code> <code>sgt</code> <code>sle</code> <code>sge</code> <code>ult</code> <code>ugt</code> <code>ule</code> <code>uge</code>)</h4>
+<pre><code>%result = slt T %lhs, %rhs
+%result = sgt T %lhs, %rhs
+%result = sle T %lhs, %rhs
+%result = sge T %lhs, %rhs
+
+%result = ult T %lhs, %rhs
+%result = ugt T %lhs, %rhs
+%result = ule T %lhs, %rhs
+%result = uge T %lhs, %rhs
+</code></pre>
+<p>The relational operators are available in a signed (<code>s</code> prefix) and unsigned (<code>u</code> prefix) flavor. Input operands are interpreted according to this prefix. The operations performed are as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Signed</th>
+<th>Unsigned</th>
+<th>Operation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>slt</code></td>
+<td><code>ult</code></td>
+<td><code>&lt;</code></td>
+</tr>
+<tr>
+<td><code>sgt</code></td>
+<td><code>ugt</code></td>
+<td><code>&gt;</code></td>
+</tr>
+<tr>
+<td><code>sle</code></td>
+<td><code>ule</code></td>
+<td><code>&lt;=</code></td>
+</tr>
+<tr>
+<td><code>sge</code></td>
+<td><code>uge</code></td>
+<td><code>&gt;=</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>T</code> must be <code>iN</code>.</li>
+<li><code>%lhs</code> and <code>%rhs</code> are the left- and right-hand side arguments of the comparison and must be of type <code>T</code>.</li>
+<li><code>%result</code> is of type <code>i1</code>.</li>
+</ul>
+<h3 id="control-flow"><a class="markdown-anchor" href="#control-flow">§</a>Control Flow</h3>
+<h4 id="phi-node-phi"><a class="markdown-anchor" href="#phi-node-phi">§</a>Phi Node (<code>phi</code>)</h4>
+<pre><code>%result = phi T [%v1, %bb1], ..., [%vN, %bbN]
+</code></pre>
+<p>The <code>phi</code> instruction is used to implement the φ node in the SSA graph representing the function or process. It produces on of its arguments <code>%v1</code> to <code>%vN</code> as a result depending on which basic block control flow originated from upon entering the <code>phi</code> instruction’s basic block.</p>
+<ul>
+<li><code>T</code> can be any type.</li>
+<li><code>%v1</code> to <code>%vN</code> must be of type <code>T</code>.</li>
+<li><code>%bb1</code> to <code>%bbN</code> must be a basic block label.</li>
+<li><code>%result</code> is of type <code>T</code>.</li>
+<li>The instruction must provide a value for every predecessor of its containing basic block.</li>
+</ul>
+<h4 id="branch-br"><a class="markdown-anchor" href="#branch-br">§</a>Branch (<code>br</code>)</h4>
+<pre><code>br %target                            ; unconditional
+br %cond, %target_if_0, %target_if_1  ; conditional
+</code></pre>
+<p>The <code>br</code> instruction transfers control flow to another basic block. In the unconditional case, control flow jumps to the <code>%target</code>. In the conditional case, <code>%cond</code> determines if control is transferred to <code>%target_if_0</code> (on 0) or <code>%target_if_1</code> (on 1).</p>
+<ul>
+<li><code>%cond</code> must be of type <code>i1</code>.</li>
+<li><code>%target</code>, <code>%target_if_0</code>, and <code>%target_if_1</code> must be a basic block label.</li>
+<li>This is a terminator instruction.</li>
+</ul>
+<h4 id="call-call"><a class="markdown-anchor" href="#call-call">§</a>Call (<code>call</code>)</h4>
+<pre><code>%result = call Tr &lt;name&gt; (T1 %arg1, ..., TN %argN)
+</code></pre>
+<p>The <code>call</code> instruction transfers control to a function and yields its return value. If used in an entity, the function is re-evaluated whenever any of the input arguments change.</p>
+<ul>
+<li><code>Tr</code> is the return type.</li>
+<li><code>T1</code> to <code>TN</code> are the argument types.</li>
+<li><code>%arg1</code> to <code>%argN</code> are the function arguments and must be of types <code>T1</code> to <code>TN</code>, respectively.</li>
+<li><code>&lt;name&gt;</code> must be a local or global name of a function with signature <code>(T1, ..., TN) Tr</code>.</li>
+<li><code>%result</code> is of type <code>Tr</code>. May be omitted if the function returns <code>void</code>.</li>
+</ul>
+<h4 id="return-from-a-function-ret"><a class="markdown-anchor" href="#return-from-a-function-ret">§</a>Return from a Function (<code>ret</code>)</h4>
+<pre><code>ret           ; return void
+ret T %value  ; return a value
+</code></pre>
+<p>The <code>ret</code> instruction returns from a function by transferring control flow to the caller. A function with <code>void</code> return type must contain <code>ret</code> instructions without arguments.</p>
+<ul>
+<li><code>T</code> is the return type and must match the enclosing function’s return type.</li>
+<li><code>%value</code> is the return value and must be of type <code>T</code>.</li>
+<li>This is a terminator instruction.</li>
+</ul>
+<h4 id="suspend-process-execution-wait"><a class="markdown-anchor" href="#suspend-process-execution-wait">§</a>Suspend Process Execution (<code>wait</code>)</h4>
+<pre><code>wait %resume_bb, %obs1, ..., %obsN
+wait $resume_bb for %time, %obs, ..., %obsN
+</code></pre>
+<p>The <code>wait</code> instruction suspends execution of a process until any of the observed signals <code>%obs1</code> to <code>%obsN</code> change or optionally a fixed time interval <code>%time</code> has passed. Execution resumes at the basic block <code>%resume_bb</code>.</p>
+<ul>
+<li><code>%resume_bb</code> must be a basic block label.</li>
+<li><code>%obs1</code> to <code>%obsN</code> must be of signal type <code>T$</code>.</li>
+<li><code>%time</code> must be of type <code>time</code>.</li>
+<li>This is a terminator instruction.</li>
+</ul>
+<h4 id="terminate-process-execution-halt"><a class="markdown-anchor" href="#terminate-process-execution-halt">§</a>Terminate Process Execution (<code>halt</code>)</h4>
+<pre><code>halt
+</code></pre>
+<p>The <code>halt</code> instruction terminates execution of a process. All processes must eventually halt or consist of an infinite loop.</p>
+<ul>
+<li>This is a terminator instruction.</li>
+</ul>
+<h5 id="example-14"><a class="markdown-anchor" href="#example-14">§</a>Example</h5>
+<p>This instruction can be used to model HDL processes that will eventually finish executing. For example the SystemVerilog</p>
+<pre><code>initial begin : p0
+    // ...
+end
+</code></pre>
+<p>or VHDL</p>
+<pre><code>p0: process
+begin
+    -- ...
+    wait;
+end process;
+</code></pre>
+<p>would eventually translate to the following in LLHD:</p>
+<pre><code>proc %p0 () -&gt; () {
+%entry:
+    ; ...
+    halt
+}
+</code></pre>
+<h3 id="memory"><a class="markdown-anchor" href="#memory">§</a>Memory</h3>
+<h4 id="stack-allocation-var"><a class="markdown-anchor" href="#stack-allocation-var">§</a>Stack Allocation (<code>var</code>)</h4>
+<pre><code>%result = var T %init
+</code></pre>
+<p>The <code>var</code> instruction allocates memory on the stack with the initial value <code>%init</code> and returns a pointer to that location.</p>
+<ul>
+<li><code>T</code> may be any type.</li>
+<li><code>%init</code> is the initial value of the memory location and must be of type <code>T</code>.</li>
+<li><code>%result</code> is of type <code>T*</code>.</li>
+</ul>
+<h4 id="loading-from-memory-ld"><a class="markdown-anchor" href="#loading-from-memory-ld">§</a>Loading from Memory (<code>ld</code>)</h4>
+<pre><code>%result = ld T* %ptr
+</code></pre>
+<p>The <code>ld</code> instruction loads a value from the memory location <code>%ptr</code>.</p>
+<ul>
+<li><code>T</code> may be any type.</li>
+<li><code>%ptr</code> must be of type <code>T*</code>.</li>
+<li><code>%result</code> is of type <code>T</code>.</li>
+</ul>
+<h4 id="storing-to-memory-st"><a class="markdown-anchor" href="#storing-to-memory-st">§</a>Storing to Memory (<code>st</code>)</h4>
+<pre><code>st T* %ptr, %value
+</code></pre>
+<p>The <code>st</code> instruction stores a <code>%value</code> to the memory location <code>%ptr</code>.</p>
+<ul>
+<li><code>T</code> may be any type.</li>
+<li><code>%ptr</code> must be of type <code>T*</code>.</li>
+<li><code>%value</code> must be of type <code>T</code>.</li>
+</ul>
+<h3 id="signals-2"><a class="markdown-anchor" href="#signals-2">§</a>Signals</h3>
+<h4 id="creating-a-signal-sig"><a class="markdown-anchor" href="#creating-a-signal-sig">§</a>Creating a Signal (<code>sig</code>)</h4>
+<pre><code>%result = sig T %init
+</code></pre>
+<p>The <code>sig</code> instruction creates a signal in an entity with the initial value <code>%init</code> and returns that signal.</p>
+<ul>
+<li><code>T</code> may be any type.</li>
+<li><code>%init</code> is the initial value of the signal and must be of type <code>T</code>.</li>
+<li><code>%result</code> is of type <code>T$</code>.</li>
+</ul>
+<h4 id="probing-the-value-on-a-signal-prb"><a class="markdown-anchor" href="#probing-the-value-on-a-signal-prb">§</a>Probing the Value on a Signal (<code>prb</code>)</h4>
+<pre><code>%result = prb T$ %sig
+</code></pre>
+<p>The <code>prb</code> instruction probes the current value of a signal <code>%sig</code>.</p>
+<ul>
+<li><code>T</code> may be any type.</li>
+<li><code>%sig</code> must be of type <code>T$</code>.</li>
+<li><code>%result</code> is of type <code>T</code>.</li>
+</ul>
+<h4 id="driving-a-value-onto-a-signal-drv"><a class="markdown-anchor" href="#driving-a-value-onto-a-signal-drv">§</a>Driving a Value onto a Signal (<code>drv</code>)</h4>
+<pre><code>drv T$ %sig, %value
+</code></pre>
+<p>The <code>drv</code> instruction drives a <code>%value</code> onto a signal <code>%sig</code>.</p>
+<ul>
+<li><code>T</code> may be any type.</li>
+<li><code>%sig</code> must be of type <code>T$</code>.</li>
+<li><code>%value</code> must be of type <code>T</code>.</li>
+</ul>
+<h3 id="structure-and-hierarchy"><a class="markdown-anchor" href="#structure-and-hierarchy">§</a>Structure and Hierarchy</h3>
+<h4 id="storage-element-reg"><a class="markdown-anchor" href="#storage-element-reg">§</a>Storage Element (<code>reg</code>)</h4>
+<pre><code>%result = reg T %init, %value &lt;mode&gt; Tt %trigger, ...
+%result = reg T %init, %value &lt;mode&gt; Tt %trigger if Tg %gate, ...
+</code></pre>
+<p>The <code>reg</code> instruction provides a storage element with an initial value <code>%init</code>. The storage element transitions to a new <code>%value</code> when the corresponding trigger (given by a value and mode) fires, and optionally if a gating condition is true. It may only be used inside an entity.</p>
+<ul>
+<li><code>T</code> is the type of the stored value.</li>
+<li><code>%init</code> is the initial value. Must be of type <code>T</code>.</li>
+<li>Each comma-separated triple following the initial value specifies a storage trigger:
+<ul>
+<li><code>%value</code> is the value to be stored in the register. Must be of type <code>T</code> or <code>T$</code>.</li>
+<li><code>&lt;mode&gt;</code> is the trigger mode and may be one of the following:
+<ul>
+<li><code>low</code> stores <code>%value</code> while the trigger is low. Models active-low resets and low-transparent latches.</li>
+<li><code>high</code> stores <code>%value</code> while the trigger is high. Models active-high resets and high-transparent latches.</li>
+<li><code>rise</code> stores <code>%value</code> upon the rising edge of the trigger. Models rising-edge flip-flops.</li>
+<li><code>fall</code> stores <code>%value</code> upon the falling edge of the trigger. Models falling-edge flip-flops.</li>
+<li><code>both</code> stores <code>%value</code> upon either a rising or a falling edge of the trigger. Models dual-edge flip-flops.</li>
+</ul>
+</li>
+<li><code>Tt</code> is the trigger type and must be <code>i1</code> or <code>i1$</code>.</li>
+<li><code>%trigger</code> is the trigger value and must be of type <code>Tt</code>.</li>
+<li><code>Tg</code> is the gate type and must be <code>i1</code> or <code>i1$</code>.</li>
+<li><code>%gate</code> is the gate value and must be of type <code>Tg</code>.</li>
+<li>In case multiple triggers apply the left-most takes precedence.</li>
+</ul>
+</li>
+<li><code>%result</code> is of type <code>T$</code>.</li>
+</ul>
+<h5 id="example-15"><a class="markdown-anchor" href="#example-15">§</a>Example</h5>
+<p>A rising, falling, and dual-edge triggered flip-flop:</p>
+<pre><code>%Q = reg i8 %init, %D rise i1$ %CLK
+%Q = reg i8 %init, %D fall i1$ %CLK
+%Q = reg i8 %init, %D both i1$ %CLK
+</code></pre>
+<p>A rising-edge triggered flip-flop with active-low reset:</p>
+<pre><code>%Q = reg i8 %init, %init low i1$ %RSTB, %D rise i1$ %CLK
+</code></pre>
+<p>A rising-edge triggered enable flip-flop with active-low reset:</p>
+<pre><code>%Q = reg i8 %init, %init low i1$ %RSTB, %D rise i1$ %CLK if i1$ %EN
+</code></pre>
+<p>A transparent-low and transparent-high latch:</p>
+<pre><code>%Q = reg i8 %init, %D low i1$ %CLK
+%Q = reg i8 %init, %D high i1$ %CLK
+</code></pre>
+<p>An SR latch:</p>
+<pre><code>%0 = const i1 0
+%1 = const i1 1
+%Q = reg i1 %0, %0 high i1 %R, %1 high i1 %S
+</code></pre>
+<h4 id="wire-delay-del"><a class="markdown-anchor" href="#wire-delay-del">§</a>Wire Delay (<code>del</code>)</h4>
+<pre><code>%result = del T$ %sig, %delay
+</code></pre>
+<p>The <code>del</code> instruction delays a signal <code>%sig</code> by the <code>%delay</code>. It models a transport delay, meaning that all strictly monotonically increasing events on <code>%sig</code> will eventually be reproduced on <code>%result</code>.</p>
+<ul>
+<li><code>T</code> can be any type.</li>
+<li><code>%sig</code> must be of type <code>T$</code>.</li>
+<li><code>%delay</code> must be of type <code>time</code>.</li>
+</ul>
+<h4 id="short-con"><a class="markdown-anchor" href="#short-con">§</a>Short (<code>con</code>)</h4>
+<pre><code>con T$ %sigA, %sigB
+</code></pre>
+<p>The <code>con</code> instruction connects two signals such that they essentially become one signal. All driven values on one signal will be reflected on the other.</p>
+<ul>
+<li><code>T</code> can be any type.</li>
+<li><code>%sigA</code> and <code>%sigB</code> must be of type <code>T$</code>.</li>
+</ul>
+<h4 id="instantiate-processentity-inst"><a class="markdown-anchor" href="#instantiate-processentity-inst">§</a>Instantiate Process/Entity (<code>inst</code>)</h4>
+<pre><code>inst &lt;target&gt; (Ti1 %in1, ..., TiN %inN) (To1 %out1, ..., ToN %outN)
+</code></pre>
+<p>The <code>inst</code> instruction instantiates a process or entity within the current entity. The target’s input and output signals are connected to <code>%in1, ...</code> and <code>%out1, ...</code>, respectively. This instruction builds design hierarchies.</p>
+<ul>
+<li><code>Ti1</code> to <code>TiN</code> are the input argument types.</li>
+<li><code>To1</code> to <code>ToN</code> are the output argument types.</li>
+<li><code>%in1</code> to <code>%inN</code> are the input arguments and must be of types <code>Ti1</code> to <code>TiN</code>, respectively.</li>
+<li><code>%out1</code> to <code>%outN</code> are the output arguments and must be of types <code>To1</code> to <code>ToN</code>, respectively.</li>
+<li><code>&lt;target&gt;</code> must be a local or global name referring to a process or entity with signature <code>(Ti1, ..., TiN) -&gt; (To1, ..., ToN)</code>.</li>
 </ul>
 
 		</div>
