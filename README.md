@@ -1,6 +1,6 @@
 # LLHD Website
 
-This is the home of the [LLHD website](https://llhd.io/).
+This is the home of the [LLHD website](http://llhd.io/).
 
 ## Local Server
 
@@ -23,6 +23,7 @@ The frontend lives in the `frontend/` directory and is just a static HTML, CSS, 
 
 To render the specification, run
 
+    npm install
     npm run render
 
 ## Server
