@@ -1,4 +1,6 @@
-var md = require("markdown-it")({
+const SPEC_MARKDOWN_URL = "https://raw.githubusercontent.com/fabianschuiki/llhd/master/doc/LANGUAGE.md";
+
+const md = require("markdown-it")({
 		xhtmlOut: true,
 		typographer: true,
 	})
@@ -10,16 +12,22 @@ var md = require("markdown-it")({
 		anchorLinkSpace: false,
 		anchorClassName: "markdown-anchor",
 	});
-var fs = require("fs");
+const fs = require("fs");
+const request = require("sync-request");
 
-var input = fs.readFileSync("/Users/fabian/Code/llhd/LANGUAGE.md", "utf8");
-let toc
+// Download the language spec.
+var input = request("GET", SPEC_MARKDOWN_URL).getBody("utf8");
+
+// Render the markdown.
+let toc;
 var output = md.render(input, {
 	tocCallback: function(tocMarkdown, tocArray, tocHtml) {
 		toc = tocHtml;
 	}
 });
 toc = "";
+
+// Write the spec file.
 fs.writeFileSync("frontend/spec.html", `<!doctype html>
 <html lang="en">
 <head>

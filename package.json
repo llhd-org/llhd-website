@@ -10,6 +10,7 @@
   "author": "Fabian Schuiki <fabian@schuiki.ch>",
   "dependencies": {
     "markdown-it": "^10.0.0",
-    "markdown-it-toc-and-anchor": "^4.2.0"
+    "markdown-it-toc-and-anchor": "^4.2.0",
+    "sync-request": "^6.1.0"
   }
 }
