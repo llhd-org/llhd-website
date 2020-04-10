@@ -198,13 +198,13 @@
 <h5 id="example"><a class="markdown-anchor" href="#example">§</a>Example</h5>
 <p>The following function computes the Fibonacci series for a 32 bit signed integer number N:</p>
 <pre><code>func @fib (i32 %N) i32 {
-%entry:
+entry:
     %one = const i32 1
     %0 = sle i32 %N, %one
     br %0, %recursive, %base
-%base:
+base:
     ret i32 %one
-%recursive:
+recursive:
     %two = const i32 2
     %1 = sub i32 %N, %one
     %2 = sub i32 %N, %two
@@ -227,7 +227,7 @@
 <h5 id="example-2"><a class="markdown-anchor" href="#example-2">§</a>Example</h5>
 <p>The following process computes the butterfly operation in an FFT combinatorially with a 1ns delay:</p>
 <pre><code>proc @bfly (i32$ %x0, i32$ %x1) -&gt; (i32$ %y0, i32$ %y1) {
-%entry:
+entry:
     %x0v = prb i32$ %x0
     %x1v = prb i32$ %x1
     %0 = add i32 %x0v, %x1v
@@ -413,8 +413,8 @@ drv i8$ %wire, %1, %1ns
 <pre><code>%0 = const i16 1
 %1 = const i16 42
 %2 = const i16 9001
-%3 = [i16 %0, i16 %1, i16 %2]  ; [1, 42, 9001]
-%4 = [3 x i16 %0]              ; [1, 1, 1]
+%3 = [i16 %0, %1, %2]  ; [1, 42, 9001]
+%4 = [3 x i16 %0]      ; [1, 1, 1]
 </code></pre>
 <p>Individual values may be obtained or modified with the <code>extf</code>/<code>insf</code> instructions. Subranges of the array may be obtained or modified with the <code>exts</code>/<code>inss</code> instructions.</p>
 <h3 id="struct-type-t0t1"><a class="markdown-anchor" href="#struct-type-t0t1">§</a>Struct Type (<code>{T0,T1,...}</code>)</h3>
@@ -688,7 +688,7 @@ drv i8$ %wire, %1, %1ns
 <h4 id="array-construction"><a class="markdown-anchor" href="#array-construction">§</a>Array Construction (<code>[...]</code>)</h4>
 <p>Array values may be constructed in two ways. The first constructs a uniform array where each element has the same value. The second constructs an array with different values for each element. Every element in an array must have the same type.</p>
 <pre><code>%result = [N x T %value]
-%result = [T %value1, ..., T %valueN]
+%result = [T %value1, ..., %valueN]
 </code></pre>
 <ul>
 <li><code>N</code> is the number of elements in the array.</li>
@@ -707,7 +707,7 @@ drv i8$ %wire, %1, %1ns
 <pre><code>%0 = const i16 9001
 %1 = const i16 42
 %2 = const i16 1337
-%3 = [i16 %0, i16 %1, i16 %2]
+%3 = [i16 %0, %1, %2]
 ; type(%3) = [3 x i16]
 </code></pre>
 <h4 id="struct-construction"><a class="markdown-anchor" href="#struct-construction">§</a>Struct Construction (<code>{...}</code>)</h4>
@@ -732,8 +732,8 @@ drv i8$ %wire, %1, %1ns
 <p>TODO(fschuiki): Update to current names/semantics.</p>
 </blockquote>
 <p>The <code>insert</code> instruction may be used to change the value of fields of structs, elements of arrays, or bits of integers. It comes in two variants: <code>insert element</code> operates on single elements, while <code>insert slice</code> operates on a slice of consecutive elements.</p>
-<pre><code>%r = insert element &lt;ty&gt; &lt;target&gt;, &lt;index&gt;, &lt;value&gt;
-%r = insert slice &lt;ty&gt; &lt;target&gt;, &lt;start&gt;, &lt;length&gt;, &lt;value&gt;
+<pre><code>%r = insf Tt %target, Tv %value, Nindex
+%r = inss Tt %target, Tv %value, Nstart, Nlength
 </code></pre>
 <ul>
 <li><code>ty</code> is the type of the target struct, array, or integer. A type.</li>
@@ -777,8 +777,8 @@ drv i8$ %wire, %1, %1ns
 <p>TODO(fschuiki): Update to current names/semantics.</p>
 </blockquote>
 <p>The <code>extract</code> instruction may be used to obtain the value of fields of structs, elements of arrays, or bits of integers. It comes in two variants: <code>extract element</code> operates on single elements, while <code>extract slice</code> operates on a slice of consecutive elements.</p>
-<pre><code>%r = extract element &lt;ty&gt; &lt;target&gt;, &lt;index&gt;
-%r = extract slice &lt;ty&gt; &lt;target&gt;, &lt;start&gt;, &lt;length&gt;
+<pre><code>%r = extf Tv, Tt %target, Nindex
+%r = exts Tv, Tt %target, Nstart, Nlength
 </code></pre>
 <ul>
 <li><code>ty</code> is the type of the target struct, array, or integer. A type.</li>
@@ -1054,14 +1054,51 @@ drv i8$ %wire, %1, %1ns
 %result = umul T %lhs, %rhs
 %result = udiv T %lhs, %rhs
 %result = umod T %lhs, %rhs
-%result = urem T %lhs, %rhs
 </code></pre>
-<p>The <code>add</code> and <code>sub</code> instructions add or subtract two values. The multiplicative operations are available in a signed (<code>s</code> prefix) and unsigned (<code>u</code> prefix) flavor. Input operands are interpreted according to this prefix. The <code>umul</code> <code>smul</code> instructions multiplies two values. The <code>udiv</code> <code>sdiv</code> instructions divides the left-hand side by the right-hand side value. The <code>umod</code> <code>smod</code> and <code>urem</code> <code>srem</code> operations compute the modulo and remainder of the division.</p>
+<p>The <code>add</code> and <code>sub</code> instructions add or subtract two values. The multiplicative operations are available in a signed (<code>s</code> prefix) and unsigned (<code>u</code> prefix) flavor. Input operands are interpreted according to this prefix. The <code>umul</code> <code>smul</code> instructions multiplies two values. The <code>udiv</code> <code>sdiv</code> instructions divides the left-hand side by the right-hand side value. The <code>umod</code> <code>smod</code> <code>srem</code> operations compute the modulo and remainder of the division.</p>
 <ul>
 <li><code>T</code> must be <code>iN</code>.</li>
 <li><code>%lhs</code> and <code>%rhs</code> are the left- and right-hand side arguments and must be of type <code>T</code>.</li>
 <li><code>%result</code> is of type <code>T</code>.</li>
 </ul>
+<h5 id="signed-modulusremainder-semantics"><a class="markdown-anchor" href="#signed-modulusremainder-semantics">§</a>Signed Modulus/Remainder Semantics</h5>
+<p>The semantics of <code>smod</code> and <code>srem</code> for negative numbers are as follows. For positive numbers they are identical (<code>umod</code>).</p>
+<table>
+<thead>
+<tr>
+<th><code>%lhs</code></th>
+<th><code>%rhs</code></th>
+<th><code>smod</code></th>
+<th><code>srem</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9</td>
+<td>5</td>
+<td>4</td>
+<td>4</td>
+</tr>
+<tr>
+<td>9</td>
+<td>-5</td>
+<td>-1</td>
+<td>4</td>
+</tr>
+<tr>
+<td>-9</td>
+<td>5</td>
+<td>1</td>
+<td>-4</td>
+</tr>
+<tr>
+<td>-9</td>
+<td>-5</td>
+<td>-4</td>
+<td>-4</td>
+</tr>
+</tbody>
+</table>
 <h3 id="comparison-operators"><a class="markdown-anchor" href="#comparison-operators">§</a>Comparison Operators</h3>
 <h4 id="equality-comparison-eq-neq"><a class="markdown-anchor" href="#equality-comparison-eq-neq">§</a>Equality Comparison (<code>eq</code> <code>neq</code>)</h4>
 <pre><code>%result = eq  T %lhs, %rhs
@@ -1197,7 +1234,7 @@ end process;
 </code></pre>
 <p>would eventually translate to the following in LLHD:</p>
 <pre><code>proc %p0 () -&gt; () {
-%entry:
+entry:
     ; ...
     halt
 }
@@ -1260,13 +1297,13 @@ end process;
 </ul>
 <h3 id="structure-and-hierarchy"><a class="markdown-anchor" href="#structure-and-hierarchy">§</a>Structure and Hierarchy</h3>
 <h4 id="storage-element-reg"><a class="markdown-anchor" href="#storage-element-reg">§</a>Storage Element (<code>reg</code>)</h4>
-<pre><code>%result = reg T %init, %value &lt;mode&gt; Tt %trigger, ...
-%result = reg T %init, %value &lt;mode&gt; Tt %trigger if Tg %gate, ...
+<pre><code>reg T$ %signal, [%value, &lt;mode&gt; %trigger], ...
+reg T$ %signal, [%value, &lt;mode&gt; %trigger if %gate], ...
 </code></pre>
-<p>The <code>reg</code> instruction provides a storage element with an initial value <code>%init</code>. The storage element transitions to a new <code>%value</code> when the corresponding trigger (given by a value and mode) fires, and optionally if a gating condition is true. It may only be used inside an entity.</p>
+<p>The <code>reg</code> instruction provides a storage element which drives its output onto <code>%signal</code>. The storage element transitions to a new <code>%value</code> when the corresponding trigger (given by a value and mode) fires, and optionally if a gating condition is true. It may only be used inside an entity.</p>
 <ul>
 <li><code>T</code> is the type of the stored value.</li>
-<li><code>%init</code> is the initial value. Must be of type <code>T</code>.</li>
+<li><code>%signal</code> is the signal that carries the stored value. Must be of type <code>T$</code>.</li>
 <li>Each comma-separated triple following the initial value specifies a storage trigger:
 <ul>
 <li><code>%value</code> is the value to be stored in the register. Must be of type <code>T</code> or <code>T$</code>.</li>
@@ -1279,43 +1316,40 @@ end process;
 <li><code>both</code> stores <code>%value</code> upon either a rising or a falling edge of the trigger. Models dual-edge flip-flops.</li>
 </ul>
 </li>
-<li><code>Tt</code> is the trigger type and must be <code>i1</code> or <code>i1$</code>.</li>
-<li><code>%trigger</code> is the trigger value and must be of type <code>Tt</code>.</li>
-<li><code>Tg</code> is the gate type and must be <code>i1</code> or <code>i1$</code>.</li>
-<li><code>%gate</code> is the gate value and must be of type <code>Tg</code>.</li>
+<li><code>%trigger</code> is the trigger value and must be of type <code>i1</code>.</li>
+<li><code>%gate</code> is the gate value and must be of type <code>i1</code>.</li>
 <li>In case multiple triggers apply the left-most takes precedence.</li>
 </ul>
 </li>
-<li><code>%result</code> is of type <code>T$</code>.</li>
 </ul>
 <h5 id="example-15"><a class="markdown-anchor" href="#example-15">§</a>Example</h5>
 <p>A rising, falling, and dual-edge triggered flip-flop:</p>
-<pre><code>%Q = reg i8 %init, %D rise i1$ %CLK
-%Q = reg i8 %init, %D fall i1$ %CLK
-%Q = reg i8 %init, %D both i1$ %CLK
+<pre><code>reg i8$ %Q, [%D, rise %CLK]
+reg i8$ %Q, [%D, fall %CLK]
+reg i8$ %Q, [%D, both %CLK]
 </code></pre>
 <p>A rising-edge triggered flip-flop with active-low reset:</p>
-<pre><code>%Q = reg i8 %init, %init low i1$ %RSTB, %D rise i1$ %CLK
+<pre><code>reg i8$ %Q, [%init, low %RSTB], [%D, rise %CLK]
 </code></pre>
 <p>A rising-edge triggered enable flip-flop with active-low reset:</p>
-<pre><code>%Q = reg i8 %init, %init low i1$ %RSTB, %D rise i1$ %CLK if i1$ %EN
+<pre><code>reg i8$ %Q, [%init, low %RSTB], [%D, rise %CLK if %EN]
 </code></pre>
 <p>A transparent-low and transparent-high latch:</p>
-<pre><code>%Q = reg i8 %init, %D low i1$ %CLK
-%Q = reg i8 %init, %D high i1$ %CLK
+<pre><code>reg i8$ %Q, [%D, low %CLK]
+reg i8$ %Q, [%D, high %CLK]
 </code></pre>
 <p>An SR latch:</p>
 <pre><code>%0 = const i1 0
 %1 = const i1 1
-%Q = reg i1 %0, %0 high i1 %R, %1 high i1 %S
+reg i1$ %Q, [%0, high %R], [%1, high %S]
 </code></pre>
 <h4 id="wire-delay-del"><a class="markdown-anchor" href="#wire-delay-del">§</a>Wire Delay (<code>del</code>)</h4>
-<pre><code>%result = del T$ %sig, %delay
+<pre><code>del T$ %target, %source, %delay
 </code></pre>
-<p>The <code>del</code> instruction delays a signal <code>%sig</code> by the <code>%delay</code>. It models a transport delay, meaning that all strictly monotonically increasing events on <code>%sig</code> will eventually be reproduced on <code>%result</code>.</p>
+<p>The <code>del</code> instruction delays a signal <code>%source</code> by a <code>%delay</code>, driving the delayed value on <code>%target</code>. It models a transport delay, meaning that all strictly monotonically increasing events on <code>%sig</code> will eventually be reproduced on <code>%result</code>.</p>
 <ul>
-<li><code>T</code> can be any type.</li>
-<li><code>%sig</code> must be of type <code>T$</code>.</li>
+<li><code>T</code> is the type carried by the signal.</li>
+<li><code>%target</code> and <code>%source</code> must be of type <code>T$</code>.</li>
 <li><code>%delay</code> must be of type <code>time</code>.</li>
 </ul>
 <h4 id="short-con"><a class="markdown-anchor" href="#short-con">§</a>Short (<code>con</code>)</h4>
