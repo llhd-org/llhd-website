@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-165588310-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-165588310-1');
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -66,7 +74,7 @@
 <li><a href="#arithmetic-operators">Arithmetic Operators</a>
 <ul>
 <li><a href="#unary-arithmetic-neg">Unary Arithmetic (<code>neg</code>)</a></li>
-<li><a href="#binary-arithmetic-add-sub-smul-sdiv-smod-srem-umul-udiv-umod-urem">Binary Arithmetic (<code>add</code> <code>sub</code> <code>smul</code> <code>sdiv</code> <code>smod</code> <code>srem</code> <code>umul</code> <code>udiv</code> <code>umod</code> <code>urem</code>)</a></li>
+<li><a href="#binary-arithmetic-add-sub-mul-udiv-sdiv-umod-smod-srem">Binary Arithmetic (<code>add</code> <code>sub</code> <code>mul</code> <code>udiv</code> <code>sdiv</code> <code>umod</code> <code>smod</code> <code>srem</code>)</a></li>
 </ul>
 </li>
 <li><a href="#comparison-operators">Comparison Operators</a>
@@ -147,7 +155,7 @@
 <p>Designs in LLHD are represented by three different constructs (called “units”): functions, processes, and entities. These capture different concerns arising from the need to model silicon hardware, and is in contrast to IRs targeting machine code generation, which generally only consist of functions.</p>
 <p>The language differentiates between how instructions are executed in a unit:</p>
 <ul>
-<li><em>Control-flow</em> units consist of basic blocks, where execution follows a clear control-flow path. This is equivalent to what one would find LLVM’s IR.</li>
+<li><em>Control-flow</em> units consist of basic blocks, where execution follows a clear control-flow path. This is equivalent to what one would find in LLVM’s IR.</li>
 <li><em>Data-flow</em> units consist only of an unordered set of instructions which form a data-flow graph. Execution of instructions is implied by the propagation of value changes through the graph.</li>
 </ul>
 <p>Furthermore it differentiates how time passes during the execution of a unit:</p>
@@ -239,7 +247,7 @@ entry:
 }
 </code></pre>
 <h3 id="entities"><a class="markdown-anchor" href="#entities">§</a>Entities</h3>
-<p>Processes represent <em>data-flow</em> executing in a <em>timed</em> fashion and consist of a set of instructions. They are used to represent hierarchy in a design, as well as a data-flow description of how a circuit’s output signals change in reaction to changing input signals.</p>
+<p>Entities represent <em>data-flow</em> executing in a <em>timed</em> fashion and consist of a set of instructions. They are used to represent hierarchy in a design, as well as a data-flow description of how a circuit’s output signals change in reaction to changing input signals.</p>
 <pre><code>entity &lt;name&gt; (&lt;in_ty1&gt; &lt;in_arg1&gt;, ...) -&gt; (&lt;out_ty1&gt; &lt;out_arg1&gt;, ...) {
     &lt;inst1&gt;
     ...
@@ -328,7 +336,7 @@ declare &lt;name&gt; (&lt;in_ty1&gt;, ...) -&gt; (&lt;out_ty1&gt;, ...)  ; proce
 <pre><code>%0 = const time 1ns 2d 3e
 </code></pre>
 <h3 id="integer-type-in"><a class="markdown-anchor" href="#integer-type-in">§</a>Integer Type (<code>iN</code>)</h3>
-<p>The <code>iN</code> type represents an integer value of <code>N</code> bits, where <code>N</code> can be any non-zero positive number. There is no sign associate with integer values. Rather, separate instructions are available to perform signed and unsigned operations, where applicable. Integer values may be constructed using the <code>const iN</code> instruction, for example:</p>
+<p>The <code>iN</code> type represents an integer value of <code>N</code> bits, where <code>N</code> can be any non-zero positive number. There is no sign associated with an integer values. Rather, separate instructions are available to perform signed and unsigned operations, where applicable. Integer values may be constructed using the <code>const iN</code> instruction, for example:</p>
 <pre><code>%0 = const i1 1
 %1 = const i32 9001
 %2 = const i1234 42
@@ -659,7 +667,7 @@ drv i8$ %wire, %1, %1ns
 </code></pre>
 <ul>
 <li><code>int</code> is an integer literal such as <code>0b0101</code>, <code>0o1247</code>, <code>129</code>, or <code>0x14F3E</code></li>
-<li><code>time</code> is a time literal such as <code>1s</code>, <code>1s 2d</code>, or <code>1s 2d 3e</code>, where the real component may carry an SI prefix such as <code>as</code>, <code>fs</code>, <code>ps</code>, <code>ns</code>, <code>us</code>, <code>ms</code>.</li>
+<li><code>time</code> is a time literal such as <code>1s</code>, <code>1s 2d</code>, or <code>1s 2d 3e</code>, where the real component may carry an SI suffix such as <code>as</code>, <code>fs</code>, <code>ps</code>, <code>ns</code>, <code>us</code>, <code>ms</code>.</li>
 </ul>
 <h5 id="example-4"><a class="markdown-anchor" href="#example-4">§</a>Example</h5>
 <p>A constant 32 bit integer with value 42 may be constructed as follows:</p>
@@ -716,7 +724,7 @@ drv i8$ %wire, %1, %1ns
 </code></pre>
 <ul>
 <li><code>T1</code> to <code>TN</code> are the types of each field in the struct.</li>
-<li><code>%value1</code> to <code>%valueN</code> is the value of each field in the struct.</li>
+<li><code>%value1</code> to <code>%valueN</code> are the values for each field in the struct.</li>
 <li><code>%result</code> is of type <code>{T1, ..., TN}</code>.</li>
 </ul>
 <h5 id="example-7"><a class="markdown-anchor" href="#example-7">§</a>Example</h5>
@@ -1042,27 +1050,24 @@ drv i8$ %wire, %1, %1ns
 <pre><code>%0 = const i8 42
 %1 = neg i8 %0  ; %1 = -42
 </code></pre>
-<h4 id="binary-arithmetic-add-sub-smul-sdiv-smod-srem-umul-udiv-umod-urem"><a class="markdown-anchor" href="#binary-arithmetic-add-sub-smul-sdiv-smod-srem-umul-udiv-umod-urem">§</a>Binary Arithmetic (<code>add</code> <code>sub</code> <code>smul</code> <code>sdiv</code> <code>smod</code> <code>srem</code> <code>umul</code> <code>udiv</code> <code>umod</code> <code>urem</code>)</h4>
+<h4 id="binary-arithmetic-add-sub-mul-udiv-sdiv-umod-smod-srem"><a class="markdown-anchor" href="#binary-arithmetic-add-sub-mul-udiv-sdiv-umod-smod-srem">§</a>Binary Arithmetic (<code>add</code> <code>sub</code> <code>mul</code> <code>udiv</code> <code>sdiv</code> <code>umod</code> <code>smod</code> <code>srem</code>)</h4>
 <pre><code>%result = add  T %lhs, %rhs
 %result = sub  T %lhs, %rhs
+%result = mul T %lhs, %rhs
 
-%result = smul T %lhs, %rhs
+%result = udiv T %lhs, %rhs
 %result = sdiv T %lhs, %rhs
+
+%result = umod T %lhs, %rhs
 %result = smod T %lhs, %rhs
 %result = srem T %lhs, %rhs
-
-%result = umul T %lhs, %rhs
-%result = udiv T %lhs, %rhs
-%result = umod T %lhs, %rhs
 </code></pre>
-<p>The <code>add</code> and <code>sub</code> instructions add or subtract two values. The multiplicative operations are available in a signed (<code>s</code> prefix) and unsigned (<code>u</code> prefix) flavor. Input operands are interpreted according to this prefix. The <code>umul</code> <code>smul</code> instructions multiplies two values. The <code>udiv</code> <code>sdiv</code> instructions divides the left-hand side by the right-hand side value. The <code>umod</code> <code>smod</code> <code>srem</code> operations compute the modulo and remainder of the division.</p>
-<ul>
-<li><code>T</code> must be <code>iN</code>.</li>
-<li><code>%lhs</code> and <code>%rhs</code> are the left- and right-hand side arguments and must be of type <code>T</code>.</li>
-<li><code>%result</code> is of type <code>T</code>.</li>
-</ul>
-<h5 id="signed-modulusremainder-semantics"><a class="markdown-anchor" href="#signed-modulusremainder-semantics">§</a>Signed Modulus/Remainder Semantics</h5>
-<p>The semantics of <code>smod</code> and <code>srem</code> for negative numbers are as follows. For positive numbers they are identical (<code>umod</code>).</p>
+<p>The <code>add</code> and <code>mul</code> instructions respectively add and multiply two values. The <code>sub</code> instruction subtract the <code>%rhs</code> from the <code>%lhs</code>.
+The <code>udiv</code> and <code>sdiv</code> instructions divide the <code>%lhs</code> by the <code>%rhs</code>, interpreting the values as either unsigned or signed values, respectively.
+The <code>umod</code>, <code>smod</code>, and <code>srem</code> instructions compute the modulus and remainder of dividing the <code>%lhs</code> by <code>%rhs</code>. The semantics for signed numbers are as follows:</p>
+<pre><code>x = (x smod y) + round_towards_ninf(x / y) * y
+x = (x srem y) + round_towards_zero(x / y) * y
+</code></pre>
 <table>
 <thead>
 <tr>
@@ -1099,12 +1104,17 @@ drv i8$ %wire, %1, %1ns
 </tr>
 </tbody>
 </table>
+<ul>
+<li><code>T</code> must be <code>iN</code>.</li>
+<li><code>%lhs</code> and <code>%rhs</code> must be of type <code>T</code>.</li>
+<li><code>%result</code> is of type <code>T</code>.</li>
+</ul>
 <h3 id="comparison-operators"><a class="markdown-anchor" href="#comparison-operators">§</a>Comparison Operators</h3>
 <h4 id="equality-comparison-eq-neq"><a class="markdown-anchor" href="#equality-comparison-eq-neq">§</a>Equality Comparison (<code>eq</code> <code>neq</code>)</h4>
 <pre><code>%result = eq  T %lhs, %rhs
 %result = neq T %lhs, %rhs
 </code></pre>
-<p>The <code>eq</code> and <code>neq</code> instruction checks for equality or inequality of two values.</p>
+<p>The <code>eq</code> and <code>neq</code> instructions check for equality or inequality of two values.</p>
 <ul>
 <li><code>T</code> can be any type.</li>
 <li><code>%lhs</code> and <code>%rhs</code> are the left- and right-hand side arguments of the comparison and must be of type <code>T</code>.</li>
@@ -1162,11 +1172,11 @@ drv i8$ %wire, %1, %1ns
 <h4 id="phi-node-phi"><a class="markdown-anchor" href="#phi-node-phi">§</a>Phi Node (<code>phi</code>)</h4>
 <pre><code>%result = phi T [%v1, %bb1], ..., [%vN, %bbN]
 </code></pre>
-<p>The <code>phi</code> instruction is used to implement the φ node in the SSA graph representing the function or process. It produces on of its arguments <code>%v1</code> to <code>%vN</code> as a result depending on which basic block control flow originated from upon entering the <code>phi</code> instruction’s basic block.</p>
+<p>The <code>phi</code> instruction is used to implement the φ node in the SSA graph representing the function or process. It produces one of its arguments <code>%v1</code> to <code>%vN</code> as a result depending on which basic block control flow originated from upon entering the <code>phi</code> instruction’s basic block.</p>
 <ul>
 <li><code>T</code> can be any type.</li>
 <li><code>%v1</code> to <code>%vN</code> must be of type <code>T</code>.</li>
-<li><code>%bb1</code> to <code>%bbN</code> must be a basic block label.</li>
+<li><code>%bb1</code> to <code>%bbN</code> must be basic block labels.</li>
 <li><code>%result</code> is of type <code>T</code>.</li>
 <li>The instruction must provide a value for every predecessor of its containing basic block.</li>
 </ul>
@@ -1177,7 +1187,7 @@ br %cond, %target_if_0, %target_if_1  ; conditional
 <p>The <code>br</code> instruction transfers control flow to another basic block. In the unconditional case, control flow jumps to the <code>%target</code>. In the conditional case, <code>%cond</code> determines if control is transferred to <code>%target_if_0</code> (on 0) or <code>%target_if_1</code> (on 1).</p>
 <ul>
 <li><code>%cond</code> must be of type <code>i1</code>.</li>
-<li><code>%target</code>, <code>%target_if_0</code>, and <code>%target_if_1</code> must be a basic block label.</li>
+<li><code>%target</code>, <code>%target_if_0</code>, and <code>%target_if_1</code> must be basic block labels.</li>
 <li>This is a terminator instruction.</li>
 </ul>
 <h4 id="call-call"><a class="markdown-anchor" href="#call-call">§</a>Call (<code>call</code>)</h4>
@@ -1278,22 +1288,25 @@ entry:
 <li><code>%result</code> is of type <code>T$</code>.</li>
 </ul>
 <h4 id="probing-the-value-on-a-signal-prb"><a class="markdown-anchor" href="#probing-the-value-on-a-signal-prb">§</a>Probing the Value on a Signal (<code>prb</code>)</h4>
-<pre><code>%result = prb T$ %sig
+<pre><code>%result = prb T$ %signal
 </code></pre>
-<p>The <code>prb</code> instruction probes the current value of a signal <code>%sig</code>.</p>
+<p>The <code>prb</code> instruction probes the current value of a signal <code>%signal</code>.</p>
 <ul>
 <li><code>T</code> may be any type.</li>
-<li><code>%sig</code> must be of type <code>T$</code>.</li>
+<li><code>%signal</code> must be of type <code>T$</code>.</li>
 <li><code>%result</code> is of type <code>T</code>.</li>
 </ul>
 <h4 id="driving-a-value-onto-a-signal-drv"><a class="markdown-anchor" href="#driving-a-value-onto-a-signal-drv">§</a>Driving a Value onto a Signal (<code>drv</code>)</h4>
-<pre><code>drv T$ %sig, %value
+<pre><code>drv T$ %signal, %value after %delay
+drv T$ %signal, %value after %delay if %cond
 </code></pre>
-<p>The <code>drv</code> instruction drives a <code>%value</code> onto a signal <code>%sig</code>.</p>
+<p>The <code>drv</code> instruction schedules signal <code>%signal</code> to change to a new value <code>%value</code> after the delay <code>%delay</code> has passed. In presence of the optional gating condition <code>%cond</code>, the instruction acts as a no-op if <code>%cond</code> is 0.</p>
 <ul>
 <li><code>T</code> may be any type.</li>
-<li><code>%sig</code> must be of type <code>T$</code>.</li>
+<li><code>%signal</code> must be of type <code>T$</code>.</li>
 <li><code>%value</code> must be of type <code>T</code>.</li>
+<li><code>%delay</code> must be of type <code>time</code>.</li>
+<li><code>%cond</code> must be of type <code>i1</code>.</li>
 </ul>
 <h3 id="structure-and-hierarchy"><a class="markdown-anchor" href="#structure-and-hierarchy">§</a>Structure and Hierarchy</h3>
 <h4 id="storage-element-reg"><a class="markdown-anchor" href="#storage-element-reg">§</a>Storage Element (<code>reg</code>)</h4>
@@ -1346,7 +1359,7 @@ reg i1$ %Q, [%0, high %R], [%1, high %S]
 <h4 id="wire-delay-del"><a class="markdown-anchor" href="#wire-delay-del">§</a>Wire Delay (<code>del</code>)</h4>
 <pre><code>del T$ %target, %source, %delay
 </code></pre>
-<p>The <code>del</code> instruction delays a signal <code>%source</code> by a <code>%delay</code>, driving the delayed value on <code>%target</code>. It models a transport delay, meaning that all strictly monotonically increasing events on <code>%sig</code> will eventually be reproduced on <code>%result</code>.</p>
+<p>The <code>del</code> instruction delays a signal <code>%source</code> by a <code>%delay</code>, driving the delayed value on <code>%target</code>. It models a transport delay, meaning that all strictly monotonically increasing events on <code>%source</code> will eventually be reproduced on <code>%target</code>.</p>
 <ul>
 <li><code>T</code> is the type carried by the signal.</li>
 <li><code>%target</code> and <code>%source</code> must be of type <code>T$</code>.</li>
