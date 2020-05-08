@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 RUN curl -sSf https://sh.rustup.rs | sh -s -- -y
 
 # Install LLHD
-RUN cargo install --git https://github.com/fabianschuiki/moore.git --force
+RUN cargo install moore --force
 
 # Configure working directory.
 RUN mkdir -p /playground
