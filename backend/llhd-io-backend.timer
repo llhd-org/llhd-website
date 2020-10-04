@@ -1,0 +1,9 @@
+[Unit]
+Description=Run llhd.io docker rebuild daily
+
+[Timer]
+OnCalendar=*-*-* 3:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

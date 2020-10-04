@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
 RUN curl -sSf https://sh.rustup.rs | sh -s -- -y
 
 # Install LLHD
+ADD https://crates.io/api/v1/crates/moore/versions version.json
 RUN cargo install moore --force
 
 # Configure working directory.
