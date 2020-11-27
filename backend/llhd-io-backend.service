@@ -4,4 +4,5 @@ Description=Rebuild llhd.io docker backend
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/docker build -t llhd-sandbox /home/ubuntu/www.llhd.io/backend
+ExecStart=/usr/bin/docker system prune -f
 User=ubuntu

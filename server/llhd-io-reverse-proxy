@@ -1,0 +1,18 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+
+    server_name llhd.io;
+
+    ssl_certificate /etc/letsencrypt/live/llhd.io/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/llhd.io/privkey.pem;
+
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_pass http://localhost:8080;
+    }
+}

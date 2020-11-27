@@ -8,3 +8,6 @@ Environment=LLHD_WEBSITE_ADDRESS=0.0.0.0
 Environment=LLHD_WEBSITE_PORT=8080
 Environment=LLHD_WEBSITE_ROOT=/home/ubuntu/www.llhd.io/frontend
 ExecStart=/home/ubuntu/www.llhd.io/server/target/release/server
+
+[Install]
+WantedBy=multi-user.target

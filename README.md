@@ -107,4 +107,8 @@ docker build -t llhd-sandbox backend
 ln -s /home/ubuntu/www.llhd.io/{server/llhd-io.service,backend/llhd-io-backend.*} /etc/systemd/system/
 service llhd-io start
 systemctl enable llhd-io.service
+
+# Install the reverse proxy
+ln -sf /home/ubuntu/www.llhd.io/server/llhd-io-reverse-proxy /etc/nginx/sites-enabled/
+service nginx reload
 ```
