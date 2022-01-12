@@ -9,7 +9,7 @@
   "private": true,
   "author": "Fabian Schuiki <fabian@schuiki.ch>",
   "dependencies": {
-    "markdown-it": "^10.0.0",
+    "markdown-it": "^12.3.2",
     "markdown-it-toc-and-anchor": "^4.2.0",
     "sync-request": "^6.1.0"
   }
